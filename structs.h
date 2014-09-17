@@ -8,6 +8,11 @@
 // function pointer for menus
 typedef (*void) fptr;
  
+// for windows compilers
+ #ifndef M_PI
+const float M_PI = 3.14159265358979323846;
+#endif
+ 
 // colors {R, G, B}
 const float Black[]	= { 0.0, 0.0, 0.0 };
 const float Red[]	= { 1.0, 0.0, 0.0 };
@@ -86,6 +91,6 @@ struct Menu
     float[] selection_color;
 }
 
+// function prototypes
  void applyCollision(ball b, paddle p);
- 
  void movePaddle(paddle p);

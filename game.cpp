@@ -27,6 +27,13 @@
  ******************************************************************************/
 #include "pong.h"
 
+Menu mainMenu;
+Menu pauseMenu;
+
+// function prototypes
+void initOpenGL( void );
+void splashScreenSetup( void );
+void mainMenuSetup( void );
  
  /***************************************************************************//**
  * main
@@ -41,5 +48,45 @@
 int main ( int argc, char *argv[] )
 {
 
+
+}
+
+
+ /***************************************************************************//**
+ * initOpenGL
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Sets up OpenGL and creates the main window.
+ ******************************************************************************/
+void initOpenGL( void )
+{
+    glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );     // 32-bit graphics and single buffering
+
+    glutInitWindowSize( 640, 256 );    // initial window size
+    glutInitWindowPosition( 100, 50 );                  // initial window position
+    glutCreateWindow( "Pong" );                  // window title
+
+    glClearColor( 0.0, 0.0, 0.0, 1.0 );                 // use black for glClear command
+}
+
+ /***************************************************************************//**
+ * splashScreenSetup
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Sets up the callbacks and drawn image used in the splash screen.
+ ******************************************************************************/
+void splashScreenSetup( void )
+{
+
+}
+
+ /***************************************************************************//**
+ * mainMenuSetup
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Sets up the callbacks for drawing and using the main menu.
+ ******************************************************************************/
+void mainMenuSetup( void )
+{
 
 }
