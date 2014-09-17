@@ -32,8 +32,7 @@
  * main
  * Authors - Derek Stotz, Charles Parsons
  *
- * Description -
-     The entry point of the pong game.
+ * The entry point of the pong game.  Sets up the menus and begins Pong.
  *
  * Parameters - 
             argc - the number of arguments from the command prompt.

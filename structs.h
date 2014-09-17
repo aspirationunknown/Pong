@@ -19,17 +19,17 @@ const float Yellow[]	= { 1.0, 1.0, 0.0 };
 const float White[]	= { 1.0, 1.0, 1.0 };
 
  /***************************************************************************//**
- * @title Ball
- * @author Derek Stotz, Charles Parsons
+ * Ball
+ * Authors - Derek Stotz, Charles Parsons
  *
- * @par Description:
- *   The information which determines the state of the ball in the main game screen
+ * The information which determines the state of the ball in the main game screen
  *
- * @param diameter - the diameter of the drawn and colliding ball
- * @param max_velocity - the maximum vertical or horizontal velocity
- * @param velocity_vector - the velocity vector <horizontal, vertical>
- * @param position - the current position <x, y>
- * @param color - the current color {R, G, B}
+ * Parameters 
+            diameter - the diameter of the drawn and colliding ball
+            max_velocity - the maximum vertical or horizontal velocity
+            velocity_vector - the velocity vector <horizontal, vertical>
+            position - the current position <x, y>
+            color - the current color {R, G, B}
  ******************************************************************************/
 struct Ball
 {
@@ -41,17 +41,17 @@ struct Ball
 }
 
  /***************************************************************************//**
- * @title Paddle
- * @author Derek Stotz, Charles Parsons
+ * Paddle
+ * Authors - Derek Stotz, Charles Parsons
  *
- * @par Description:
- *   The information which determines the state of a Paddle on the game screen
+ * The information which determines the state of a Paddle on the game screen
  *
- * @param dimensions - the drawn and colliding dimensions <width, height>
- * @param velocity_vector - the velocity vector <horizontal, vertical>
- * @param position - the current position <x, y>
- * @param movement_speed - the velocity vector applied when the paddle is moved by the player.  Also the maximum speed of the paddle <horizontal, vertical>
- * @param color - the current color {R, G, B}
+ * Members -
+            dimensions - the drawn and colliding dimensions <width, height>
+            velocity_vector - the velocity vector <horizontal, vertical>
+            position - the current position <x, y>
+            movement_speed - the velocity vector applied when the paddle is moved by the player.  Also the maximum speed of the paddle <horizontal, vertical>
+            color - the current color {R, G, B}
  ******************************************************************************/
 struct Paddle
 {
@@ -63,18 +63,18 @@ struct Paddle
 }
 
  /***************************************************************************//**
- * @title Menu
- * @author Derek Stotz, Charles Parsons
+ * Menu
+ * Authors - Derek Stotz, Charles Parsons
  *
- * @par Description:
- *   The information which determines the state of and drawn information in a text menu.
+ * The information which determines the state of and drawn information in a text menu.
  *
- * @param options - the displayed text options in the menu
- * @param selection_index - the currently selected option number
- * @param option_actions - the function executed when an option is selected
- * @param background_color - the color of the menu background {R, G, B}
- * @param text_color - the color of the menu text {R, G, B}
- * @param selection_color - the color of the selected text option {R, G, B}
+ * Members -
+        options - the displayed text options in the menu
+        selection_index - the currently selected option number
+        option_actions - the function executed when an option is selected
+        background_color - the color of the menu background {R, G, B}
+        text_color - the color of the menu text {R, G, B}
+        selection_color - the color of the selected text option {R, G, B}
  ******************************************************************************/
 struct Menu
 {
