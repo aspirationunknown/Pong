@@ -1,61 +1,43 @@
-#include "pong.h"
-
 /***************************************************************************//**
- * @file game.cpp
+ * game.cpp
  *
- * @mainpage PA 1 - Pong
+ * Assignment - PA 1 - Pong
  *
- * @section course_section Course Information
+ * Authors - Derek Stotz, Charles Parsons
  *
- * @author Derek Stotz, Charles Parsons
+ * Date - September 30, 2014
  *
- * @date September 30, 2014
+ * Instructor - Dr. Weiss
  *
- * @par Instructor:
- *         Dr. Weiss
+ * Course - CSC 433
  *
- * @par Course:
- *         CSC 433
+ * Location - McLaury - Room 313
  *
- * @par Location:
- *         McLaury - Room 313
  *
- * @section program_section Program Information
- *
- * @details This application contains a two-player pong game.
-
- *
- * @section compile_section Compiling and Usage
-
-            Compiling: make pong
+ * Usage - 
+            To Compile: make pong
             Usage: pong
             
+ * Details -
+            This application contains a two-player pong game.
  *
- * @section todo_bugs_modification_section Todo, Bugs, and Modifications
- *          @bugs No bugs to speak of.
-
- @par Modifications and Development Timeline:
-   @verbatim
-   Date          Modification
-   ------------  ---------------------------------------------------------------
-   Sep 14, 2014  Planned and allocated work.
-
-   Sep 15, 2014  Created file structure, structs.cpp, art, and game.cpp
-   @endverbatim
-
+ * Issues and Bugs - 
+            No bugs to speak of.
  *
  ******************************************************************************/
+#include "pong.h"
 
  
  /***************************************************************************//**
- * @title Main
- * @author Derek Stotz, Charles Parsons
+ * main
+ * Authors - Derek Stotz, Charles Parsons
  *
- * @par Description:
- *   The entry point of the pong game.
+ * Description -
+     The entry point of the pong game.
  *
- * @param argc - the number of arguments from the command prompt.
- * @param argv - a command line arguments.
+ * Parameters - 
+            argc - the number of arguments from the command prompt.
+            argv - the command line arguments.
  ******************************************************************************/
 int main ( int argc, char *argv[] )
 {

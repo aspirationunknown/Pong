@@ -85,3 +85,7 @@ struct Menu
     float[] text_color;
     float[] selection_color;
 }
+
+ void applyCollision(ball b, paddle p);
+ 
+ void movePaddle(paddle p);
