@@ -81,6 +81,13 @@ void drawPaddle(Paddle paddle)
  ******************************************************************************/
 void drawField()
 {
+    // set the background color to black
+    glClearColor(Black[0], Black[1], Black[2], 1.0f);
+    
+    // draw a dotted white line in the middle of the screen
+    
+    
+    // draw each player's score
 
 
 }
