@@ -25,7 +25,7 @@ OBJS = game.o pong.o structs.o
 
 pong: game.o pong.o structs.o
 
-	g++ ${OBJS} ${CXXFLAGS} -o -lm ${GL_LIBS}
+	g++ ${OBJS} ${CXXFLAGS} -o -lm pong ${GL_LIBS}
 
 
 game.o: game.cpp pong.h 
@@ -41,6 +41,7 @@ pong.o: pong.cpp pong.h
 structs.o: structs.cpp pong.h
 
 	g++ ${CXXFLAGS} -c structs.cpp ${GL_LIBS}
+
 
 clean:
 

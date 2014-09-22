@@ -5,6 +5,9 @@
 // keys
 const int EscapeKey = 27;
 
+// player enumeration
+enum player {PLAYER_ONE, PLAYER_TWO};
+
 // function prototypes
 void drawMenuText(Menu menu);
 void endGame(player winner);

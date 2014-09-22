@@ -16,9 +16,6 @@ typedef void (*fptr)();
 const float M_PI = 3.14159265358979323846;
 #endif
  
-// player enumeration
-enum player {PLAYER_ONE, PLAYER_TWO};
-
 // colors {R, G, B}
 const float Black[]	= { 0.0, 0.0, 0.0 };
 const float Red[]	= { 1.0, 0.0, 0.0 };

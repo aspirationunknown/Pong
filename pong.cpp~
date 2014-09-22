@@ -104,8 +104,8 @@ void drawField()
  ******************************************************************************/
 void score(player scorer)
 {
-    player_scores[scorer]++;
+    player_scores[player]++;
     
-    if( player_scores[scorer] >= end_score)
-        endGame(scorer);
+    if( player_scores[player] >= end_score)
+        endGame(player);
 }
