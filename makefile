@@ -16,7 +16,7 @@ LINK = g++
 CXXFLAGS = -O3 -Wall -std=c++11
 
 # OpenGL/Mesa libraries for Linux:
-GL_LIBS = -lglut -lGLU -lGL
+GL_LIBS = -lglut -lGLU -lGL -lm
 
 #-----------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ OBJS = game.o pong.o structs.o
 
 pong: game.o pong.o structs.o
 
-	g++ ${OBJS} ${CXXFLAGS} -o -lm ${GL_LIBS}
+	g++ ${OBJS} ${CXXFLAGS} -o pong ${GL_LIBS}
 
 
 game.o: game.cpp pong.h 
