@@ -38,6 +38,10 @@ int splashscreen_cols = 640;
 int splashscreen_rows = 256;
 byte* splashscreen_image;
 
+// opening the readme
+const char* open_readme_command = "xdg-open README";
+//const char* open_readme_command = "notepad.exe README";
+
 // screen state
 screen current_screen = SPLASHSCREEN;
 screen resume_screen = SPLASHSCREEN;
@@ -83,11 +87,12 @@ int main ( int argc, char *argv[] )
         return -1;
     }
 
-    //start displaying
-    initOpenGL();
-
-    //splash screen spins until a key is pressed
     mainMenuSetup();
+
+    //start displaying
+    glutInit(&argc, argv);
+    initOpenGL();
+    
     return 0;
 }
 
@@ -111,19 +116,9 @@ void initOpenGL( void )
     glutReshapeFunc( reshape );
 }
 
- /***************************************************************************//**
- * mainMenuSetup
- * Authors - Derek Stotz, Charles Parsons
- *
- * Sets up the callbacks for drawing and using the main menu.
- ******************************************************************************/
-void mainMenuSetup( void )
-{
-
-}
 
  /***************************************************************************//**
- * mainMenuSetup
+ * displayImage
  * Authors - Dr. John Weiss
  *
  * Displays an image through the glDrawPixels method
@@ -196,13 +191,73 @@ void reshape( int w, int h )
 }
 
  /***************************************************************************//**
+ * Main Menu Functions
+ ******************************************************************************/
+
+ /***************************************************************************//**
+ * mainMenu_newGame
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Starts a new two-player game
+ ******************************************************************************/
+void mainMenu_newGame( void )
+{
+}
+
+ /***************************************************************************//**
+ * mainMenu_newGame
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Starts a new one-player practice game
+ ******************************************************************************/
+void mainMenu_practice( void )
+{
+}
+
+ /***************************************************************************//**
+ * mainMenu_newGame
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Opens the readme
+ ******************************************************************************/
+void mainMenu_about( void )
+{
+    system(open_readme_command);
+}
+
+ /***************************************************************************//**
+ * mainMenu_newGame
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Exits the application
+ ******************************************************************************/
+void mainMenu_exit( void )
+{
+    glutLeaveMainLoop();
+}
+
+ /***************************************************************************//**
  * mainMenuSetup
  * Authors - Derek Stotz, Charles Parsons
  *
- * Sets up the Main Menu properties
+ * Sets up the Main Menu properties and callback functions
  ******************************************************************************/
 void mainMenuSetup()
 {
-    main_menu.string_options = { "", "" };
-    main_menu.
+    main_menu.options = new string[4];
+    main_menu.options[0] = "New Game";
+    main_menu.options[1] = "Practice";
+    main_menu.options[2] = "About";
+    main_menu.options[3] = "Exit";
+
+    main_menu.option_actions = new fptr[4];
+    main_menu.option_actions[0] = mainMenu_newGame;
+    main_menu.option_actions[1] = mainMenu_practice;
+    main_menu.option_actions[2] = mainMenu_about;
+    main_menu.option_actions[3] = mainMenu_exit;
+
+    assignColor(main_menu.background_color, Black);
+    assignColor(main_menu.text_color, White);
+    assignColor(main_menu.selection_color, Yellow);
+    main_menu.selection_index = 0;
 }

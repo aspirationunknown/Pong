@@ -45,7 +45,7 @@ const float White[]	= { 1.0, 1.0, 1.0 };
  ******************************************************************************/
 struct Ball
 {
-    public Ball(int diam, int max_v, std::pair<int, int> v_vector, std::pair<int, int> pos, float col);
+    //Ball(int diam, int max_v, std::pair<int, int> v_vector, std::pair<int, int> pos, float* clr);
 
     int diameter;
     int max_velocity;
@@ -69,7 +69,7 @@ struct Ball
  ******************************************************************************/
 struct Paddle
 {
-    public Paddle(std::pair<int, int> dim, std::pair<int, int> v_vector, std::pair<int, int> pos, std::pair<int, int> mov_speed, float color);
+    //Paddle(std::pair<int, int> dim, std::pair<int, int> v_vector, std::pair<int, int> pos, std::pair<int, int> mov_speed, float* clr);
 
     std::pair<int, int> dimensions;
     std::pair<int, int> velocity_vector;
@@ -94,17 +94,18 @@ struct Paddle
  ******************************************************************************/
 struct Menu
 {
-    public Menu(std::string* opt, int sel_index, fptr* opt_actions, float bck_color, float txt_color, float sel_color);
+    //Menu(std::string* opt, int sel_index, fptr* opt_actions, float* bck_color, float* txt_color, float* sel_color);
 
-    std::string options[];
+    std::string* options;
     int selection_index;
-    fptr option_actions[];
-    float background_color;
-    float text_color;
-    float selection_color;
+    fptr* option_actions;
+    float background_color[3];
+    float text_color[3];
+    float selection_color[3];
 };
 
 // function prototypes
 void applyCollision(Ball &ball, Paddle* paddle);
 void movePaddle(Paddle paddle);
 void applySpin(Ball &ball, Paddle &paddle);
+void assignColor(float value[3], const float color[3]);

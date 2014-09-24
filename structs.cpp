@@ -131,3 +131,38 @@ void applySpin(Ball &ball, Paddle &paddle)
     //                                  
     //y bvelocity = 
 }
+
+/*Ball::Ball(int diam, int max_v, std::pair<int, int> v_vector, std::pair<int, int> pos, float* clr)
+{
+    this.diameter = diam;
+    this.max_velocity = max_v;
+    this.velocity_vector = v_vector;
+    this.position = pos;
+    this.color = clr;
+}
+
+Paddle::Paddle(std::pair<int, int> dim, std::pair<int, int> v_vector, std::pair<int, int> pos, std::pair<int, int> mov_speed, float* clr)
+{
+    this.dimensions = dim;
+    this.velocity_vector = v_vector;
+    this.position = pos;
+    this.movement_speed = mov_speed;
+    this.color = clr;
+}
+
+Menu::Menu(std::string* opt, int sel_index, fptr* opt_actions, float* bck_color, float* txt_color, float* sel_color)
+{
+    this.options = opt;
+    this.selection_index = sel_index;
+    this.option_actions = opt_actions;
+    this.background_color = bck_color;
+    this.text_color = txt_color;
+    this.selection_color = sel_color
+}*/
+
+void assignColor(float value[3], const float color[3])
+{
+    value[0] = color[0];
+    value[1] = color[1];
+    value[2] = color[2];
+}
