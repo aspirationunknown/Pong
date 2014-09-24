@@ -90,7 +90,7 @@ int main ( int argc, char *argv[] )
     mainMenuSetup();
 
     //start displaying
-    glitInit(&argc, argv);
+    glutInit(&argc, argv);
     initOpenGL();
     
     return 0;
