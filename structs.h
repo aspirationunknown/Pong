@@ -107,4 +107,4 @@ struct Menu
 // function prototypes
 void applyCollision(Ball &ball, Paddle* paddle);
 void movePaddle(Paddle paddle);
-void applySpin(Ball &ball, Paddle* paddle);
+void applySpin(Ball &ball, Paddle &paddle);

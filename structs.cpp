@@ -34,7 +34,7 @@ void applyCollision(Ball &ball, Paddle paddle[2])
         paddle[PLAYER_ONE].dimensions.second))
     {
         ball.velocity_vector.first *= -1;
-        applySpin(ball, &paddle[PLAYER_ONE]);
+        applySpin(ball, paddle[PLAYER_ONE]);
         return;
     }
     
@@ -49,7 +49,7 @@ void applyCollision(Ball &ball, Paddle paddle[2])
         paddle[PLAYER_TWO].dimensions.second))
     {
         ball.velocity_vector.first *= -1;
-        applySpin(ball, &paddle[PLAYER_TWO]);
+        applySpin(ball, paddle[PLAYER_TWO]);
         return;
     }
     //apply appropriate vector change to ball based on where on the paddle
