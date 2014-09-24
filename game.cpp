@@ -55,7 +55,6 @@ int end_score = 10;    // the score at which a player wins the game
 
 // function prototypes
 void initOpenGL( void );
-void splashScreenSetup( void );
 void mainMenuSetup( void );
 void display( void );
 void display_splashscreen( void );
@@ -86,7 +85,6 @@ int main ( int argc, char *argv[] )
 
     //start displaying
     initOpenGL();
-    splashScreenSetup();
 
     //splash screen spins until a key is pressed
     mainMenuSetup();
@@ -195,4 +193,16 @@ void reshape( int w, int h )
     // switch back to (default) model view mode, for transformations
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
+}
+
+ /***************************************************************************//**
+ * mainMenuSetup
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Sets up the Main Menu properties
+ ******************************************************************************/
+void mainMenuSetup()
+{
+    main_menu.string_options = { "", "" };
+    main_menu.
 }

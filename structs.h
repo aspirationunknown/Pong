@@ -45,6 +45,8 @@ const float White[]	= { 1.0, 1.0, 1.0 };
  ******************************************************************************/
 struct Ball
 {
+    public Ball(int diam, int max_v, std::pair<int, int> v_vector, std::pair<int, int> pos, float col);
+
     int diameter;
     int max_velocity;
     std::pair<int, int> velocity_vector;
@@ -67,6 +69,8 @@ struct Ball
  ******************************************************************************/
 struct Paddle
 {
+    public Paddle(std::pair<int, int> dim, std::pair<int, int> v_vector, std::pair<int, int> pos, std::pair<int, int> mov_speed, float color);
+
     std::pair<int, int> dimensions;
     std::pair<int, int> velocity_vector;
     std::pair<int, int> position;
@@ -90,12 +94,14 @@ struct Paddle
  ******************************************************************************/
 struct Menu
 {
+    public Menu(std::string* opt, int sel_index, fptr* opt_actions, float bck_color, float txt_color, float sel_color);
+
     std::string options[];
     int selection_index;
     fptr option_actions[];
-    float background_color[];
-    float text_color[];
-    float selection_color[];
+    float background_color;
+    float text_color;
+    float selection_color;
 };
 
 // function prototypes
