@@ -28,7 +28,7 @@ pong: game.o pong.o structs.o
 	g++ ${OBJS} ${CXXFLAGS} -o pong ${GL_LIBS}
 
 
-game.o: game.cpp pong.h 
+game.o: game.cpp pong.h bmpRead.o
 
 	g++ ${CXXFLAGS} -c game.cpp ${GL_LIBS}
 

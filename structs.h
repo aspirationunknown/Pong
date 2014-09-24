@@ -10,6 +10,7 @@
 
 // function pointer for menus
 typedef void (*fptr)();
+typedef unsigned char byte;
  
 // for windows compilers
  #ifndef M_PI
@@ -17,7 +18,7 @@ const float M_PI = 3.14159265358979323846;
 #endif
  
 // player enumeration
-enum player {PLAYER_ONE, PLAYER_TWO};
+enum player {PLAYER_ONE, PLAYER_TWO, PLAYER_NONE};
 
 // colors {R, G, B}
 const float Black[]	= { 0.0, 0.0, 0.0 };

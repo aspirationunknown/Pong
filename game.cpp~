@@ -146,13 +146,13 @@ void display( void )
         case SPLASHSCREEN:
             display_splashscreen();
         case MAINMENU:
-            display_menu(main_menu);
+            display_mainmenu(main_menu);
         case PRACTICE:
             display_practice(player_paddles[0], player_paddles[1], game_ball);
         case GAME:
             display_game(player_scores[0], player_scores[1], player_paddles[0], player_paddles[1], game_ball);
         case PAUSE:
-            display_menu(pause_menu);
+            display_pause(pause_menu, resume_screen);
         default: return;
     }
 }

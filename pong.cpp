@@ -6,12 +6,6 @@
     from structs.h.
  ******************************************************************************/
  #include "pong.h"
- 
- // game objects and state information
- int player_scores[2] = { 0, 0 };
- Ball game_ball;
- Paddle player_paddles[2];
- int end_score = 10;    // the score at which a player wins the game
 
   /***************************************************************************//**
  * drawMenuText
@@ -102,10 +96,56 @@ void drawField()
  * Parameters -
             player - the player to score for.
  ******************************************************************************/
-void score(player scorer)
+void score(player scorer, int player_scores[], int end_score)
 {
     player_scores[scorer]++;
     
     if( player_scores[scorer] >= end_score)
         endGame(scorer);
+}
+
+  /***************************************************************************//**
+ * display_practice
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Displays the practice field
+ *
+ * Parameters -
+            player_one_paddle - the paddle under a player's control
+            cpu_paddle - the paddle under the control of the computer
+            ball - the ball on the field
+ ******************************************************************************/
+void display_practice(Paddle player_one_paddle, Paddle cpu_paddle, Ball ball)
+{
+}
+
+  /***************************************************************************//**
+ * display_game
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Displays the game field
+ *
+ * Parameters -
+            player_one_score - the score to display of player one (right side)
+            player_two_score - the score to display of player two (left side)
+            player_one_paddle - the paddle under player one's player's control
+            player_two_paddle - the paddle under player two's player's control
+            ball - the ball on the field
+ ******************************************************************************/
+void display_game(int player_one_score, int player_two_score, Paddle player_one_paddle, Paddle player_two_paddle, Ball ball)
+{
+}
+
+
+  /***************************************************************************//**
+ * display_menu
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Displays a full menu, including the background and what is selected
+ *
+ * Parameters -
+            menu - the menu to display
+ ******************************************************************************/
+void display_menu( Menu menu )
+{
 }
