@@ -6,6 +6,14 @@
  ******************************************************************************/
 #include "structs.h"
  
+
+ /***************************************************************************//**
+ * applyCollision
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Takes a ball and a paddle and applies a velocity modification based on
+    whether or not the paddle is in contact with the ball.
+ ******************************************************************************/
 void applyCollision(Ball &ball, Paddle paddle[2])
 {
     //determine if ball and paddle collide, assuming (0,0) is in upper
@@ -26,7 +34,7 @@ void applyCollision(Ball &ball, Paddle paddle[2])
         paddle[PLAYER_ONE].dimensions.second))
     {
         ball.velocity_vector.first *= -1;
-        applySpin(ball, paddle[PLAYER_ONE]);
+        applySpin(ball, &paddle[PLAYER_ONE]);
         return;
     }
     
@@ -41,7 +49,7 @@ void applyCollision(Ball &ball, Paddle paddle[2])
         paddle[PLAYER_TWO].dimensions.second))
     {
         ball.velocity_vector.first *= -1;
-        applySpin(ball, paddle[PLAYER_TWO]);
+        applySpin(ball, &paddle[PLAYER_TWO]);
         return;
     }
     //apply appropriate vector change to ball based on where on the paddle
@@ -54,7 +62,14 @@ void applyCollision(Ball &ball, Paddle paddle[2])
 }
 
 
-void movePaddle(Paddle paddle)
+ /***************************************************************************//**
+ * movePaddle
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Checks currently pressed keys and moves a given paddle based on which keys
+    are currently being pressed for a given player.
+ ******************************************************************************/
+void movePaddle(Paddle paddle, player mover)
 {
     //after key-press move paddle in the direction indicated by the key pressed.
     //How does it know what key was pressed?
@@ -65,6 +80,13 @@ void movePaddle(Paddle paddle)
 }
 
 
+ /***************************************************************************//**
+ * applySpin
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Takes a ball and a colliding paddle and applies a "spin", or a velocity
+    modification dependant on the paddle's relative position.
+ ******************************************************************************/
 void applySpin(Ball &ball, Paddle &paddle)
 {
     int moving = 0; // 1 = up, -1 = down, 0 = not moving

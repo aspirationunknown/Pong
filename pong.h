@@ -17,6 +17,6 @@ void drawField();
 void score(player scorer);
 
 // display functions
-void display_menu(Menu menu)
+void display_menu(Menu menu);
 void display_practice(Paddle player_one_paddle, Paddle cpu_paddle, Ball ball);
 void display_game(int player_one_score, int player_two_score, Paddle player_one_paddle, Paddle player_two_paddle, Ball ball);

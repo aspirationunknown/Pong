@@ -41,6 +41,11 @@ byte* splashscreen_image;
 // screen state
 screen current_screen = SPLASHSCREEN;
 screen resume_screen = SPLASHSCREEN;
+int ScreenWidth = 640;
+int ScreenHeight = 256;
+
+// world coordinate window extents: -1000 to +1000 in smaller dimension
+const float ViewplaneSize = 1000.0;
 
 // the global variables associated with the game
 int player_scores[2] = { 0, 0 };
@@ -54,6 +59,7 @@ void splashScreenSetup( void );
 void mainMenuSetup( void );
 void display( void );
 void display_splashscreen( void );
+void reshape( int w, int h );
 
 // functions by Dr. Weiss, for loading and displaying bmp files
 bool LoadBmpFile( const char* filename, int &NumRows, int &NumCols, unsigned char* &ImagePtr );
@@ -103,17 +109,8 @@ void initOpenGL( void )
     glutCreateWindow( "Pong" );                  // window title
 
     glClearColor( 0.0, 0.0, 0.0, 1.0 );                 // use black for glClear command
-}
-
- /***************************************************************************//**
- * splashScreenSetup
- * Authors - Derek Stotz, Charles Parsons
- *
- * Sets up the callbacks and drawn image used in the splash screen.
- ******************************************************************************/
-void splashScreenSetup( void )
-{
-    
+    glutDisplayFunc( display );
+    glutReshapeFunc( reshape );
 }
 
  /***************************************************************************//**
@@ -139,6 +136,12 @@ void displayImage( int x, int y, int w, int h, byte *image )
     glDrawPixels( w, h, GL_RGB, GL_UNSIGNED_BYTE, image );
 }
 
+ /***************************************************************************//**
+ * display
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * The display callback, taking into account the current screen
+ ******************************************************************************/
 void display( void )
 {
     switch( current_screen )
@@ -157,7 +160,39 @@ void display( void )
     }
 }
 
+ /***************************************************************************//**
+ * display_splashscreen
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * The display function for the splashscreen screen, called in the display function
+ ******************************************************************************/
 void display_splashscreen()
 {
     displayImage(0, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
+}
+
+ /***************************************************************************//**
+ * reshape
+ * Authors - Dr. John Weiss
+ *
+ * The callback function which reshapes the window
+ ******************************************************************************/
+void reshape( int w, int h )
+{
+    // store new window dimensions globally
+    ScreenWidth = w;
+    ScreenHeight = h;
+
+    // orthographic projection of 3-D scene onto 2-D, maintaining aspect ratio
+    glMatrixMode( GL_PROJECTION );      // use an orthographic projection
+    glLoadIdentity();                   // initialize transformation matrix
+    if ( w > h )                        // use width:height aspect ratio to specify view extents
+        gluOrtho2D( -ViewplaneSize * w / h, ViewplaneSize * w / h, -ViewplaneSize, ViewplaneSize );
+    else
+        gluOrtho2D( -ViewplaneSize, ViewplaneSize, -ViewplaneSize * h / w, ViewplaneSize * h / w );
+    glViewport( 0, 0, w, h );           // adjust viewport to new window
+
+    // switch back to (default) model view mode, for transformations
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
 }

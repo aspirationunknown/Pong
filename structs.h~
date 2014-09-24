@@ -10,6 +10,7 @@
 
 // function pointer for menus
 typedef void (*fptr)();
+typedef unsigned char byte;
  
 // for windows compilers
  #ifndef M_PI
