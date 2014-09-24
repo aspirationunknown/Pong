@@ -26,7 +26,7 @@ void applyCollision(Ball &ball, Paddle paddle[2])
         paddle[PLAYER_ONE].dimensions.second))
     {
         ball.velocity_vector.first *= -1;
-        applySpin(ball, paddle);
+        applySpin(ball, paddle[PLAYER_ONE]);
         return;
     }
     
@@ -41,7 +41,7 @@ void applyCollision(Ball &ball, Paddle paddle[2])
         paddle[PLAYER_TWO].dimensions.second))
     {
         ball.velocity_vector.first *= -1;
-        applySpin(ball, paddle);
+        applySpin(ball, paddle[PLAYER_TWO]);
         return;
     }
     //apply appropriate vector change to ball based on where on the paddle
@@ -65,15 +65,47 @@ void movePaddle(Paddle paddle)
 }
 
 
-void applySpin(Ball &ball, Paddle paddle[2])
+void applySpin(Ball &ball, Paddle &paddle)
 {
-    //spin:
+    int moving = 0; // 1 = up, -1 = down, 0 = not moving
+    int spin = 0; //1 = top, -1 = bottom, 0 = middle
+  
     //if paddle is moving up increase y velocity of ball.
+    if(paddle.velocity_vector.second > 0)
+    {
+        moving = 1;
+    }
     //if paddle is moving down increase -y velocity of ball.
+    else if(paddle.velocity_vector.second < 0)
+    {
+        moving = -1;
+    }
     //if paddle is moving toward ball increase -x velocity of ball.
-
+    else
+    {
+        moving = 0;
+    }
+    
     //if ball hits top third of paddle make y velocity positive.
-    //if ball hits middle third of paddle do not change y velocity.
+    if(ball.position.second > paddle.position.second -
+       paddle.position.second / 3.0)
+    {
+        spin = 1;
+    } 
     //if ball hits bottom third of paddle make y velocity negative.
+    else if(ball.position.second < paddle.position.second -
+            paddle.position.second * 2 / 3.0)
+    {
+        spin = -1;
+    }
+    ///if ball hits middle third of paddle do not change y velocity.
+    else
+    {
+        spin = 0;
+    }
 
+    //formula for new ball velocity:
+    //x_bvelocity = (xbvelocity > 0) ? -(x_bvelocity + x_pvelocity):
+    //                                  
+    //y bvelocity = 
 }
