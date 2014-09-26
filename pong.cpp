@@ -8,21 +8,6 @@
  #include "pong.h"
 
   /***************************************************************************//**
- * drawMenuText
- * Authors - Derek Stotz, Charles Parsons
- *
- * Draws a text menu, including the selected item.
- *
- * Parameters -
-            menu - the Menu object to draw on the screen
- ******************************************************************************/
-void drawMenuText(Menu menu)
-{
-
-
-}
-
-  /***************************************************************************//**
  * endGame
  * Authors - Derek Stotz, Charles Parsons
  *
@@ -141,11 +126,36 @@ void display_game(int player_one_score, int player_two_score, Paddle player_one_
  * display_menu
  * Authors - Derek Stotz, Charles Parsons
  *
- * Displays a full menu, including the background and what is selected
+ * Displays a full menu, including the selected option
  *
- * Parameters -
+ * Parameters
             menu - the menu to display
  ******************************************************************************/
-void display_menu( Menu menu )
+void display_menu( Menu menu, int x, int y, int spacing )
 {
+    for(int i = 0; i < menu.n; i++)
+    {
+//USE THREE SEPARATE DOUBLES IN THE CALL
+        if( menu.selection_index == i )
+            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, Yellow );
+        else
+            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, White );
+    }
+}
+
+ /***************************************************************************//**
+ * DrawStrokeString
+ * Authors - Dr. John Weiss
+ *
+ * Draws a stroke string for a game menu
+ ******************************************************************************/
+void DrawStrokeString( const char *string, float x, float y, const float color[] )
+{
+    glColor3fv( color );
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glTranslatef( x, y, 0 );
+    // while ( *string ) glutStrokeCharacter( GLUT_STROKE_ROMAN, *string++ );
+    glutStrokeString( GLUT_STROKE_ROMAN, (const unsigned char *)string );
+    glPopMatrix();
 }

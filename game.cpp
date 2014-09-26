@@ -32,6 +32,21 @@ using namespace std;
 Menu main_menu;
 Menu pause_menu;
 
+// keyboard press flags
+bool up_pressed;
+bool down_pressed;
+bool left_pressed;
+bool right_pressed;
+
+bool w_pressed;
+bool s_pressed;
+bool a_pressed;
+bool d_pressed;
+
+bool enter_pressed;
+bool escape_pressed;
+bool shift_pressed;
+
 // splashscreen info
 const char* splashscreen_filepath = "./resources/splashscreen.bmp"; 
 int splashscreen_cols = 640;
@@ -43,10 +58,10 @@ const char* open_readme_command = "xdg-open README";
 //const char* open_readme_command = "notepad.exe README";
 
 // screen state
-screen current_screen = SPLASHSCREEN;
-screen resume_screen = SPLASHSCREEN;
-int ScreenWidth = 640;
-int ScreenHeight = 256;
+screen current_screen = MAINMENU;
+screen resume_screen = MAINMENU;
+int ScreenWidth = 1280;
+int ScreenHeight = 512;
 
 // world coordinate window extents: -1000 to +1000 in smaller dimension
 const float ViewplaneSize = 1000.0;
@@ -56,13 +71,19 @@ int player_scores[2] = { 0, 0 };
 Ball game_ball;
 Paddle player_paddles[2];
 int end_score = 10;    // the score at which a player wins the game
+int fps = 60;
 
 // function prototypes
 void initOpenGL( void );
 void mainMenuSetup( void );
 void display( void );
+void step( int value);
 void display_splashscreen( void );
 void reshape( int w, int h );
+void keyboard_up( unsigned char key, int x, int y );
+void keyboard_down( unsigned char key, int x, int y );
+void special_up( int key, int x, int y );
+void special_down( int key, int x, int y );
 
 // functions by Dr. Weiss, for loading and displaying bmp files
 bool LoadBmpFile( const char* filename, int &NumRows, int &NumCols, unsigned char* &ImagePtr );
@@ -92,7 +113,8 @@ int main ( int argc, char *argv[] )
     //start displaying
     glutInit(&argc, argv);
     initOpenGL();
-    
+    glutMainLoop();    
+
     return 0;
 }
 
@@ -105,17 +127,30 @@ int main ( int argc, char *argv[] )
  ******************************************************************************/
 void initOpenGL( void )
 {
-    glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );     // 32-bit graphics and single buffering
+    glutInitDisplayMode( GLUT_RGBA | GLUT_SINGLE );     // 32-bit graphics and double buffering
 
-    glutInitWindowSize( 640, 256 );    // initial window size
+    glutInitWindowSize( ScreenWidth, ScreenHeight );    // initial window size
     glutInitWindowPosition( 100, 50 );                  // initial window position
     glutCreateWindow( "Pong" );                  // window title
+
+    glutIgnoreKeyRepeat(1); // ignore repeated key presses
+    glutKeyboardUpFunc( keyboard_up );
+    glutKeyboardFunc( keyboard_down );
+    glutSpecialUpFunc( special_up );
+    glutSpecialFunc( special_down );
 
     glClearColor( 0.0, 0.0, 0.0, 1.0 );                 // use black for glClear command
     glutDisplayFunc( display );
     glutReshapeFunc( reshape );
+    glutTimerFunc( 1000/fps, step, 0 );
 }
 
+
+void step ( int value )
+{
+    glutPostRedisplay();
+    glutTimerFunc( 1000/fps, step, 0 );
+}
 
  /***************************************************************************//**
  * displayImage
@@ -137,20 +172,28 @@ void displayImage( int x, int y, int w, int h, byte *image )
  ******************************************************************************/
 void display( void )
 {
+    glClear( GL_COLOR_BUFFER_BIT );
     switch( current_screen )
     {
-        case SPLASHSCREEN:
-            display_splashscreen();
         case MAINMENU:
-            display_menu(main_menu);
+            display_splashscreen();
+            display_menu(main_menu, 0, -ScreenHeight, 128);
+            break;
         case PRACTICE:
             display_practice(player_paddles[0], player_paddles[1], game_ball);
+            break;
         case GAME:
             display_game(player_scores[0], player_scores[1], player_paddles[0], player_paddles[1], game_ball);
+            break;
         case PAUSE:
-            display_menu(pause_menu);
-        default: return;
+            display_menu(pause_menu, 0, -ScreenHeight, 128);
+        default:
+            break;
     }
+
+    //glutSwapBuffers();
+    glFlush();
+
 }
 
  /***************************************************************************//**
@@ -161,7 +204,7 @@ void display( void )
  ******************************************************************************/
 void display_splashscreen()
 {
-    displayImage(0, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
+    displayImage(-1 * ScreenWidth, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
 }
 
  /***************************************************************************//**
@@ -260,5 +303,123 @@ void mainMenuSetup()
     assignColor(main_menu.background_color, Black);
     assignColor(main_menu.text_color, White);
     assignColor(main_menu.selection_color, Yellow);
+
     main_menu.selection_index = 0;
+    main_menu.n = 4;
+}
+
+ /***************************************************************************//**
+ * keyboard_down
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * handles key press events
+ ******************************************************************************/
+void keyboard_down( unsigned char key, int x, int y )
+{
+    switch( key )
+    {
+        case 'w':
+            w_pressed = true;
+            break;
+        case 's':
+            s_pressed = true;
+            break;
+        case 'a':
+            a_pressed = true;
+            break;
+        case 'd':
+            d_pressed = true;
+            break;
+        case '\n':
+            enter_pressed = true;
+            break;
+        case 27:
+            escape_pressed = true;
+        default:
+            break;
+    }
+}
+
+ /***************************************************************************//**
+ * keyboard_up
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * handles key release events
+ ******************************************************************************/
+void keyboard_up( unsigned char key, int x, int y )
+{
+    switch( key )
+    {
+        case 'w':
+            w_pressed = false;
+            break;
+        case 's':
+            s_pressed = false;
+            break;
+        case 'a':
+            a_pressed = false;
+            break;
+        case 'd':
+            d_pressed = false;
+            break;
+        case '\n':
+            enter_pressed = false;
+            break;
+        case 27:
+            escape_pressed = false;
+        default:
+            break;
+    }
+}
+
+ /***************************************************************************//**
+ * special_down
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * handles key press events for arrow keys
+ ******************************************************************************/
+void special_down( int key, int x, int y )
+{
+    switch( key )
+    {
+        case GLUT_KEY_UP:
+            up_pressed = true;
+            break;
+        case GLUT_KEY_DOWN:
+            down_pressed = true;
+            break;
+        case GLUT_KEY_LEFT:
+            left_pressed = true;
+            break;
+        case GLUT_KEY_RIGHT:
+            right_pressed = true;
+        default:
+            break;
+    }
+}
+
+ /***************************************************************************//**
+ * special_up
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * handles key release events for special keys
+ ******************************************************************************/
+void special_up( int key, int x, int y )
+{
+    switch( key )
+    {
+        case GLUT_KEY_UP:
+            up_pressed = false;
+            break;
+        case GLUT_KEY_DOWN:
+            down_pressed = false;
+            break;
+        case GLUT_KEY_LEFT:
+            left_pressed = false;
+            break;
+        case GLUT_KEY_RIGHT:
+            right_pressed = false;
+        default:
+            break;
+    }
 }
