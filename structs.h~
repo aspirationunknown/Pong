@@ -96,10 +96,10 @@ struct Menu
 {
     //Menu(std::string* opt, int sel_index, fptr* opt_actions, float* bck_color, float* txt_color, float* sel_color);
 
-    std::string* options;
+    std::string options[5];
     int n;
     int selection_index;
-    fptr* option_actions;
+    fptr option_actions[5];
     float background_color[3];
     float text_color[3];
     float selection_color[3];
@@ -109,4 +109,4 @@ struct Menu
 void applyCollision(Ball &ball, Paddle* paddle);
 void movePaddle(Paddle paddle);
 void applySpin(Ball &ball, Paddle &paddle);
-void assignColor(float value[3], const float color[3]);
+void assignColor(float &value[3], const float color[3]);

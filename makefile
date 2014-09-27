@@ -13,7 +13,7 @@ CXX = g++
 LINK = g++
 
 # Turn on optimization and warnings (add -g for debugging with gdb):
-CXXFLAGS = -O3 -Wall -std=c++11
+CXXFLAGS = -O3 -Wall -std=c++11 -g
 
 # OpenGL/Mesa libraries for Linux:
 GL_LIBS = -lglut -lGLU -lGL -lm

@@ -29,8 +29,8 @@
 
 using namespace std;
 
-Menu* main_menu;
-Menu* pause_menu;
+Menu main_menu;
+Menu pause_menu;
 
 // keyboard press flags
 bool up_pressed;
@@ -69,8 +69,8 @@ const float ViewplaneSize = 1000.0;
 
 // the global variables associated with the game
 int player_scores[2] = { 0, 0 };
-Ball* game_ball;
-Paddle* player_paddles[2];
+Ball game_ball;
+Paddle player_paddles[2];
 int end_score = 10;    // the score at which a player wins the game
 int fps = 60;
 
@@ -89,7 +89,7 @@ void special_up( int key, int x, int y );
 void special_down( int key, int x, int y );
 
 // step functions
-void menu_step(Menu* menu);
+void menu_step(Menu &menu);
 void practice_step();
 void game_step();
 
@@ -134,7 +134,7 @@ int main ( int argc, char *argv[] )
  ******************************************************************************/
 void initOpenGL( void )
 {
-    glutInitDisplayMode( GLUT_RGBA | GLUT_SINGLE );     // 32-bit graphics and double buffering
+    glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );     // 32-bit graphics and double buffering
 
     glutInitWindowSize( ScreenWidth, ScreenHeight );    // initial window size
     glutInitWindowPosition( 100, 50 );                  // initial window position
@@ -211,7 +211,7 @@ void display( void )
             display_menu(main_menu, 0, -ScreenHeight, 128);
             break;
         case PRACTICE:
-            display_practice(player_paddles[0], player_paddles[1], game_ball);
+            display_practice(player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
             break;
         case GAME:
             display_game(player_scores[0], player_scores[1], player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
@@ -222,7 +222,7 @@ void display( void )
             break;
     }
 
-    //glutSwapBuffers();
+    glutSwapBuffers();
     glFlush();
 
 }
@@ -326,6 +326,7 @@ void mainMenu_newGame( void )
  ******************************************************************************/
 void mainMenu_practice( void )
 {
+    gameSetup();
     current_screen = PRACTICE;
 }
 
@@ -360,26 +361,22 @@ void mainMenu_exit( void )
  ******************************************************************************/
 void mainMenuSetup()
 {
-    main_menu = new Menu();
+    main_menu.options[0] = "Exit";
+    main_menu.options[1] = "About";
+    main_menu.options[2] = "Practice";
+    main_menu.options[3] = "New Game";
 
-    main_menu->options = new string[4];
-    main_menu->options[0] = "Exit";
-    main_menu->options[1] = "About";
-    main_menu->options[2] = "Practice";
-    main_menu->options[3] = "New Game";
+    main_menu.option_actions[0] = mainMenu_exit;
+    main_menu.option_actions[1] = mainMenu_about;
+    main_menu.option_actions[2] = mainMenu_practice;
+    main_menu.option_actions[3] = mainMenu_newGame;
 
-    main_menu->option_actions = new fptr[4];
-    main_menu->option_actions[0] = mainMenu_exit;
-    main_menu->option_actions[1] = mainMenu_about;
-    main_menu->option_actions[2] = mainMenu_practice;
-    main_menu->option_actions[3] = mainMenu_newGame;
+    assignColor(main_menu.background_color, Black);
+    assignColor(main_menu.text_color, White);
+    assignColor(main_menu.selection_color, Yellow);
 
-    assignColor(main_menu->background_color, Black);
-    assignColor(main_menu->text_color, White);
-    assignColor(main_menu->selection_color, Yellow);
-
-    main_menu->selection_index = 3;
-    main_menu->n = 4;
+    main_menu.selection_index = 3;
+    main_menu.n = 4;
 }
 
  /***************************************************************************//**
@@ -390,26 +387,22 @@ void mainMenuSetup()
  ******************************************************************************/
 void pauseMenuSetup()
 {
-    pause_menu = new Menu();
+    pause_menu.options[0] = "Exit";
+    pause_menu.options[1] = "Main Menu";
+    pause_menu.options[2] = "Restart";
+    pause_menu.options[3] = "Resume";
 
-    pause_menu->options = new string[4];
-    pause_menu->options[0] = "Exit";
-    pause_menu->options[1] = "Main Menu";
-    pause_menu->options[2] = "Restart";
-    pause_menu->options[3] = "Resume";
+    pause_menu.option_actions[0] = mainMenu_exit;
+    pause_menu.option_actions[1] = pauseMenu_mainMenu;
+    pause_menu.option_actions[2] = pauseMenu_restart;
+    pause_menu.option_actions[3] = pauseMenu_resume;
 
-    pause_menu->option_actions = new fptr[4];
-    pause_menu->option_actions[0] = mainMenu_exit;
-    pause_menu->option_actions[1] = pauseMenu_mainMenu;
-    pause_menu->option_actions[2] = pauseMenu_restart;
-    pause_menu->option_actions[3] = pauseMenu_resume;
+    assignColor(pause_menu.background_color, Black);
+    assignColor(pause_menu.text_color, White);
+    assignColor(pause_menu.selection_color, Yellow);
 
-    assignColor(pause_menu->background_color, Black);
-    assignColor(pause_menu->text_color, White);
-    assignColor(pause_menu->selection_color, Yellow);
-
-    pause_menu->selection_index = 3;
-    pause_menu->n = 4;
+    pause_menu.selection_index = 3;
+    pause_menu.n = 4;
 }
 
 
@@ -421,28 +414,23 @@ void pauseMenuSetup()
  ******************************************************************************/
 void gameSetup()
 {
-    game_ball = new Ball();
-
-    player_paddles[0] = new Paddle();
-    player_paddles[1] = new Paddle();
-
-    game_ball->position.first = ScreenWidth / 2;
-    game_ball->position.second = ScreenHeight / 2;
-    game_ball->diameter = 64;
-    assignColor(game_ball->color, White);
+    game_ball.position.first = ScreenWidth / 2;
+    game_ball.position.second = ScreenHeight / 2;
+    game_ball.diameter = 64;
+    assignColor(game_ball.color, White);
     
    
-    player_paddles[0]->position.first = -ScreenWidth + 64 + player_paddles[0]->dimensions.first;
-    player_paddles[0]->position.second = 0 - player_paddles[0]->dimensions.second;
-    player_paddles[0]->dimensions.first = 32;
-    player_paddles[0]->dimensions.second = 128;
-    assignColor(player_paddles[0]->color, White);
+    player_paddles[0].position.first = -ScreenWidth + 64 + player_paddles[0].dimensions.first;
+    player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second;
+    player_paddles[0].dimensions.first = 32;
+    player_paddles[0].dimensions.second = 128;
+    assignColor(player_paddles[0].color, White);
 
-    player_paddles[1]->position.first = ScreenWidth - 64 - player_paddles[1]->dimensions.first;
-    player_paddles[1]->position.second = 0 - player_paddles[1]->dimensions.second;
-    player_paddles[1]->dimensions.first = 32;
-    player_paddles[1]->dimensions.second = 128;
-    assignColor(player_paddles[1]->color, White);
+    player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
+    player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second;
+    player_paddles[1].dimensions.first = 32;
+    player_paddles[1].dimensions.second = 128;
+    assignColor(player_paddles[1].color, White);
 }
 
  /***************************************************************************//**
@@ -572,30 +560,30 @@ void special_up( int key, int x, int y )
  * Parameters -
         menu - the menu to step through
  ******************************************************************************/
-void menu_step(Menu* menu)
+void menu_step(Menu &menu)
 {
     if( down_pressed )
     {
-        if (menu->selection_index == 0)
+        if (menu.selection_index == 0)
         {
-            menu->selection_index = menu->n - 1;
+            menu.selection_index = menu.n - 1;
             down_pressed = false;
         }
         else
         {
-            menu->selection_index -= 1;
+            menu.selection_index -= 1;
             down_pressed = false;
         }
     }
     else if ( up_pressed )
     {
         up_pressed = false;
-        menu->selection_index = (menu->selection_index + 1 ) % menu->n;
+        menu.selection_index = (menu.selection_index + 1 ) % menu.n;
     }
     else if ( enter_pressed )
     {
         enter_pressed = false;
-        menu->option_actions[menu->selection_index]();
+        menu.option_actions[menu.selection_index]();
     }
 }
 
@@ -608,7 +596,7 @@ void menu_step(Menu* menu)
  ******************************************************************************/
 void practice_step()
 {
-
+    
 }
 
  /***************************************************************************//**

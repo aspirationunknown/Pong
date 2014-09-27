@@ -31,13 +31,9 @@ void endGame(player winner)
  * Parameters -
             Ball - the ball object to draw
  ******************************************************************************/
-void drawBall(Ball* ball)
+void drawBall(Ball &ball)
 {
-    std::cout << "\nBEFORE\n\nwe\n\nswe\n";
-    std::cout.flush();
-    DrawFilledEllipse( ball->position.first, ball->position.second, ball->diameter/2, ball->diameter/2, ball->color );
-    std::cout << "\nwjgowigjoiwejfg\n\nwe\n\nswe\n";
-    std::cout.flush();
+    DrawFilledEllipse( ball.position.first, ball.position.second, ball.diameter/2, ball.diameter/2, ball.color );
 }
 
   /***************************************************************************//**
@@ -49,14 +45,14 @@ void drawBall(Ball* ball)
  * Parameters -
             Paddle - the paddle object to draw
  ******************************************************************************/
-void drawPaddle(Paddle* paddle)
+void drawPaddle(Paddle &paddle)
 {
     DrawFilledRectangle( 
-        paddle->position.first, 
-        paddle->position.second, 
-        paddle->position.first+paddle->dimensions.first, 
-        paddle->position.second+paddle->dimensions.second, 
-        paddle->color );
+        paddle.position.first, 
+        paddle.position.second, 
+        paddle.position.first+paddle.dimensions.first, 
+        paddle.position.second+paddle.dimensions.second, 
+        paddle.color );
 }
 
   /***************************************************************************//**
@@ -109,9 +105,12 @@ void score(player scorer, int player_scores[], int end_score)
             cpu_paddle - the paddle under the control of the computer
             ball - the ball on the field
  ******************************************************************************/
-void display_practice(Paddle* player_one_paddle, Paddle* cpu_paddle, Ball* ball)
+void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
-
+    drawField(ScreenWidth, ScreenHeight);
+    drawBall(ball);
+    drawPaddle(player_one_paddle);
+    drawPaddle(cpu_paddle);
 }
 
   /***************************************************************************//**
@@ -124,15 +123,16 @@ void display_practice(Paddle* player_one_paddle, Paddle* cpu_paddle, Ball* ball)
             player_one_score - the score to display of player one (right side)
             player_two_score - the score to display of player two (left side)
             player_one_paddle - the paddle under player one's player's control
-            player_two_paddle - the paddle under player two's player's control
             ball - the ball on the field
  ******************************************************************************/
-void display_game(int player_one_score, int player_two_score, Paddle* player_one_paddle, Paddle* player_two_paddle, Ball* ball, int ScreenWidth, int ScreenHeight)
+void display_game(int player_one_score, int player_two_score, Paddle &player_one_paddle, Paddle &player_two_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
+    std::cout << "\nball diameter: " << ball.diameter << "\n";
+    std::cout.flush();
     drawField(ScreenWidth, ScreenHeight);
-    drawBall(ball);
-    drawPaddle(player_one_paddle);
-    drawPaddle(player_two_paddle);
+    //drawBall(ball);
+    //drawPaddle(player_one_paddle);
+    //drawPaddle(player_two_paddle);
 }
 
 
@@ -145,17 +145,17 @@ void display_game(int player_one_score, int player_two_score, Paddle* player_one
  * Parameters
             menu - the menu to display
  ******************************************************************************/
-void display_menu( Menu* menu, int x, int y, int spacing )
+void display_menu( Menu &menu, int x, int y, int spacing )
 {
-    for(int i = 0; i < menu->n; i++)
+    for(int i = 0; i < menu.n; i++)
     {
-        if( menu->selection_index == i )
+        if( menu.selection_index == i )
         {
-            DrawStrokeString( menu->options[i].c_str(), x, y + i * spacing, menu->selection_color );
+            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, menu.selection_color );
         }
         else
         {
-            DrawStrokeString( menu->options[i].c_str(), x, y + i * spacing, menu->text_color );
+            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, menu.text_color );
         }
     }
 }

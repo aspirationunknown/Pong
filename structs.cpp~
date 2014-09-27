@@ -159,3 +159,10 @@ Menu::Menu(std::string* opt, int sel_index, fptr* opt_actions, float* bck_color,
     this.text_color = txt_color;
     this.selection_color = sel_color
 }*/
+
+void assignColor(float &value[3], const float color[3])
+{
+    value[0] = color[0];
+    value[1] = color[1];
+    value[2] = color[2];
+}
