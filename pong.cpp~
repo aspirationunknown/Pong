@@ -128,7 +128,7 @@ void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball,
 void display_game(int player_one_score, int player_two_score, Paddle &player_one_paddle, Paddle &player_two_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
     drawField(ScreenWidth, ScreenHeight);
-    //drawBall(ball);
+    drawBall(ball);
     //drawPaddle(player_one_paddle);
     //drawPaddle(player_two_paddle);
 }

@@ -51,7 +51,7 @@ struct Ball
     int max_velocity;
     std::pair<int, int> velocity_vector;
     std::pair<int, int> position;
-    float color[];
+    float color[3];
 };
 
  /***************************************************************************//**
@@ -75,7 +75,7 @@ struct Paddle
     std::pair<int, int> velocity_vector;
     std::pair<int, int> position;
     std::pair<int, int> movement_speed;
-    float color[];
+    float color[3];
 };
 
  /***************************************************************************//**

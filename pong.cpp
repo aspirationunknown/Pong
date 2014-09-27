@@ -127,12 +127,10 @@ void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball,
  ******************************************************************************/
 void display_game(int player_one_score, int player_two_score, Paddle &player_one_paddle, Paddle &player_two_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
-    std::cout << "\nball diameter: " << ball.diameter << "\n";
-    std::cout.flush();
     drawField(ScreenWidth, ScreenHeight);
-    //drawBall(ball);
-    //drawPaddle(player_one_paddle);
-    //drawPaddle(player_two_paddle);
+    drawBall(ball);
+    drawPaddle(player_one_paddle);
+    drawPaddle(player_two_paddle);
 }
 
 
