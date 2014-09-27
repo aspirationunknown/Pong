@@ -73,6 +73,7 @@ Ball game_ball;
 Paddle player_paddles[2];
 int end_score = 10;    // the score at which a player wins the game
 int fps = 60;
+int turn = 1; // 1 is serve right, -1 is serve left
 
 // function prototypes
 void initOpenGL( void );
@@ -419,23 +420,24 @@ void gameSetup()
     game_ball.position.first = 0;
     game_ball.position.second = 0;
     game_ball.diameter = 64;
+    game_ball.velocity_vector.first = 20 * turn;
+    turn *= -1;  //change serving turn
     assignColor(game_ball.color, White);
     
-   
-    player_paddles[0].position.first = -ScreenWidth + 64 + player_paddles[0].dimensions.first;
-    player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second;
     player_paddles[0].dimensions.first = 56;
     player_paddles[0].dimensions.second = 384;
     player_paddles[0].movement_speed.first = 15;
     player_paddles[0].movement_speed.second = 15;
+    player_paddles[0].position.first = -ScreenWidth + 64 + player_paddles[0].dimensions.first;
+    player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second/2;
     assignColor(player_paddles[0].color, White);
 
-    player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
-    player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second;
     player_paddles[1].dimensions.first = 56;
     player_paddles[1].dimensions.second = 384;
     player_paddles[1].movement_speed.first = 15;
     player_paddles[1].movement_speed.second = 15;
+    player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
+    player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second/2;
     assignColor(player_paddles[1].color, White);
 }
 
@@ -682,4 +684,10 @@ void game_step()
    player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
    player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
    player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
+   game_ball.position.first += game_ball.velocity_vector.first;
+   game_ball.position.second += game_ball.velocity_vector.second;
+
+   // collisions
+   applyCollision(game_ball, player_paddles);
+
 }
