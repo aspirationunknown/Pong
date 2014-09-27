@@ -709,11 +709,19 @@ void game_step()
        game_ball.velocity_vector.second *= -1;
 
    nextcoord = game_ball.position.first + game_ball.velocity_vector.first;
-   if( nextcoord <  FieldHeight && nextcoord > -FieldHeight)
+   if( nextcoord <  FieldWidth + game_ball.diameter && nextcoord > -FieldWidth - game_ball.diameter)
        game_ball.position.first += game_ball.velocity_vector.first;
    else
-       score(PLAYER_ONE, player_scores, end_score);
-   
+   {
+       if(nextcoord > 0)
+           score(PLAYER_ONE, player_scores, end_score);
+       else
+           score(PLAYER_TWO, player_scores, end_score);
+       game_ball.position.first = 0;
+       game_ball.position.second = 0;
+       game_ball.velocity_vector.first = 20 * turn;
+       turn *= -1;  //change serving turn
+   }
 
    // collisions
    applyCollision(game_ball, player_paddles);
