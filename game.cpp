@@ -78,6 +78,7 @@ int fps = 60;
 void initOpenGL( void );
 void mainMenuSetup( void );
 void pauseMenuSetup( void );
+void pauseMenu_resume( void );
 void gameSetup( void );
 void display( void );
 void step( int value);
@@ -287,6 +288,7 @@ void pauseMenu_mainMenu( void )
 void pauseMenu_restart( void )
 {
     gameSetup();
+    pauseMenu_resume();
 }
 
  /***************************************************************************//**
@@ -424,12 +426,16 @@ void gameSetup()
     player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second;
     player_paddles[0].dimensions.first = 56;
     player_paddles[0].dimensions.second = 384;
+    player_paddles[0].movement_speed.first = 15;
+    player_paddles[0].movement_speed.second = 15;
     assignColor(player_paddles[0].color, White);
 
     player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
     player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second;
     player_paddles[1].dimensions.first = 56;
     player_paddles[1].dimensions.second = 384;
+    player_paddles[1].movement_speed.first = 15;
+    player_paddles[1].movement_speed.second = 15;
     assignColor(player_paddles[1].color, White);
 }
 
@@ -596,7 +602,30 @@ void menu_step(Menu &menu)
  ******************************************************************************/
 void practice_step()
 {
-    
+   // horizontal movement player 1
+   if( a_pressed && d_pressed )
+        player_paddles[0].velocity_vector.first = 0;
+   else if( a_pressed )
+        player_paddles[0].velocity_vector.first = -1 * player_paddles[0].movement_speed.first;
+   else if( d_pressed )
+        player_paddles[0].velocity_vector.first = player_paddles[0].movement_speed.first;
+   else
+        player_paddles[0].velocity_vector.first /= 2;
+
+   // horizontal movement player 1
+   if( s_pressed && w_pressed )
+        player_paddles[0].velocity_vector.second = 0;
+   else if( s_pressed )
+        player_paddles[0].velocity_vector.second = -1 * player_paddles[0].movement_speed.second;
+   else if( w_pressed )
+        player_paddles[0].velocity_vector.second = player_paddles[0].movement_speed.second;
+   else
+        player_paddles[0].velocity_vector.second /= 2;
+
+   // apply velocity
+   player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
+   player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
+   player_paddles[1].position.second = game_ball.position.second - (player_paddles[1].dimensions.second / 2);    
 }
 
  /***************************************************************************//**
@@ -608,8 +637,49 @@ void practice_step()
  ******************************************************************************/
 void game_step()
 {
-   if( left_pressed )
-   {
-        
-   }
+   // horizontal movement player 1
+   if( a_pressed && d_pressed )
+        player_paddles[0].velocity_vector.first = 0;
+   else if( a_pressed )
+        player_paddles[0].velocity_vector.first = -1 * player_paddles[0].movement_speed.first;
+   else if( d_pressed )
+        player_paddles[0].velocity_vector.first = player_paddles[0].movement_speed.first;
+   else
+        player_paddles[0].velocity_vector.first /= 2;
+
+   // horizontal movement player 1
+   if( s_pressed && w_pressed )
+        player_paddles[0].velocity_vector.second = 0;
+   else if( s_pressed )
+        player_paddles[0].velocity_vector.second = -1 * player_paddles[0].movement_speed.second;
+   else if( w_pressed )
+        player_paddles[0].velocity_vector.second = player_paddles[0].movement_speed.second;
+   else
+        player_paddles[0].velocity_vector.second /= 2;
+
+   // horizontal movement player 2
+   if( left_pressed && right_pressed )
+        player_paddles[1].velocity_vector.first = 0;
+   else if( left_pressed )
+        player_paddles[1].velocity_vector.first = -1 * player_paddles[1].movement_speed.first;
+   else if( right_pressed )
+        player_paddles[1].velocity_vector.first = player_paddles[1].movement_speed.first;
+   else
+        player_paddles[1].velocity_vector.first /= 2;
+
+   // horizontal movement player 2
+   if( down_pressed && up_pressed )
+        player_paddles[1].velocity_vector.second = 0;
+   else if( down_pressed )
+        player_paddles[1].velocity_vector.second = -1 * player_paddles[1].movement_speed.second;
+   else if( up_pressed )
+        player_paddles[1].velocity_vector.second = player_paddles[1].movement_speed.second;
+   else
+        player_paddles[1].velocity_vector.second /= 2;
+
+   // apply velocity
+   player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
+   player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
+   player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
+   player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
 }
