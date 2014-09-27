@@ -414,22 +414,22 @@ void pauseMenuSetup()
  ******************************************************************************/
 void gameSetup()
 {
-    game_ball.position.first = ScreenWidth / 2;
-    game_ball.position.second = ScreenHeight / 2;
+    game_ball.position.first = 0;
+    game_ball.position.second = 0;
     game_ball.diameter = 64;
     assignColor(game_ball.color, White);
     
    
     player_paddles[0].position.first = -ScreenWidth + 64 + player_paddles[0].dimensions.first;
     player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second;
-    player_paddles[0].dimensions.first = 32;
-    player_paddles[0].dimensions.second = 128;
+    player_paddles[0].dimensions.first = 56;
+    player_paddles[0].dimensions.second = 384;
     assignColor(player_paddles[0].color, White);
 
     player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
     player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second;
-    player_paddles[1].dimensions.first = 32;
-    player_paddles[1].dimensions.second = 128;
+    player_paddles[1].dimensions.first = 56;
+    player_paddles[1].dimensions.second = 384;
     assignColor(player_paddles[1].color, White);
 }
 

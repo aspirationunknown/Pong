@@ -109,4 +109,4 @@ struct Menu
 void applyCollision(Ball &ball, Paddle* paddle);
 void movePaddle(Paddle paddle);
 void applySpin(Ball &ball, Paddle &paddle);
-void assignColor(float &value[3], const float color[3]);
+void assignColor(float value[3], const float color[3]);
