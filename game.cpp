@@ -64,6 +64,9 @@ screen resume_screen = MAINMENU;
 int ScreenWidth = 1280;
 int ScreenHeight = 512;
 
+int FieldWidth = 1280;
+int FieldHeight = 512;
+
 // world coordinate window extents: -1000 to +1000 in smaller dimension
 const float ViewplaneSize = 1000.0;
 
@@ -251,6 +254,8 @@ void reshape( int w, int h )
     // store new window dimensions globally
     ScreenWidth = w;
     ScreenHeight = h;
+    FieldWidth = w * 1.5;
+    FieldHeight = h * 1.5;
 
     // orthographic projection of 3-D scene onto 2-D, maintaining aspect ratio
     glMatrixMode( GL_PROJECTION );      // use an orthographic projection
@@ -424,18 +429,18 @@ void gameSetup()
     turn *= -1;  //change serving turn
     assignColor(game_ball.color, White);
     
-    player_paddles[0].dimensions.first = 56;
-    player_paddles[0].dimensions.second = 384;
+    player_paddles[0].dimensions.first = 40;
+    player_paddles[0].dimensions.second = 300;
     player_paddles[0].movement_speed.first = 15;
-    player_paddles[0].movement_speed.second = 15;
+    player_paddles[0].movement_speed.second = 20;
     player_paddles[0].position.first = -ScreenWidth + 64 + player_paddles[0].dimensions.first;
     player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second/2;
     assignColor(player_paddles[0].color, White);
 
-    player_paddles[1].dimensions.first = 56;
-    player_paddles[1].dimensions.second = 384;
+    player_paddles[1].dimensions.first = 40;
+    player_paddles[1].dimensions.second = 300;
     player_paddles[1].movement_speed.first = 15;
-    player_paddles[1].movement_speed.second = 15;
+    player_paddles[1].movement_speed.second = 20;
     player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
     player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second/2;
     assignColor(player_paddles[1].color, White);
@@ -647,7 +652,7 @@ void game_step()
    else if( d_pressed )
         player_paddles[0].velocity_vector.first = player_paddles[0].movement_speed.first;
    else
-        player_paddles[0].velocity_vector.first /= 2;
+        player_paddles[0].velocity_vector.first /= 1.2;
 
    // horizontal movement player 1
    if( s_pressed && w_pressed )
@@ -657,7 +662,7 @@ void game_step()
    else if( w_pressed )
         player_paddles[0].velocity_vector.second = player_paddles[0].movement_speed.second;
    else
-        player_paddles[0].velocity_vector.second /= 2;
+        player_paddles[0].velocity_vector.second /= 1.2;
 
    // horizontal movement player 2
    if( left_pressed && right_pressed )
@@ -667,7 +672,7 @@ void game_step()
    else if( right_pressed )
         player_paddles[1].velocity_vector.first = player_paddles[1].movement_speed.first;
    else
-        player_paddles[1].velocity_vector.first /= 2;
+        player_paddles[1].velocity_vector.first /= 1.2;
 
    // horizontal movement player 2
    if( down_pressed && up_pressed )
@@ -677,15 +682,38 @@ void game_step()
    else if( up_pressed )
         player_paddles[1].velocity_vector.second = player_paddles[1].movement_speed.second;
    else
-        player_paddles[1].velocity_vector.second /= 2;
+        player_paddles[1].velocity_vector.second /= 1.2;
 
    // apply velocity
-   player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
-   player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
-   player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
-   player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
-   game_ball.position.first += game_ball.velocity_vector.first;
-   game_ball.position.second += game_ball.velocity_vector.second;
+   
+   int nextcoord = player_paddles[0].position.first + player_paddles[0].velocity_vector.first;
+   if( nextcoord <  -player_paddles[1].dimensions.first && nextcoord > -FieldWidth)
+       player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
+
+   nextcoord = player_paddles[1].position.first + player_paddles[1].velocity_vector.first;
+   if( nextcoord <  FieldWidth - player_paddles[1].dimensions.first && nextcoord > 0)
+       player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
+
+   nextcoord = player_paddles[0].position.second + player_paddles[0].velocity_vector.second;
+   if( nextcoord <  FieldHeight - player_paddles[1].dimensions.second && nextcoord > -FieldHeight)
+       player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
+
+   nextcoord = player_paddles[1].position.second + player_paddles[1].velocity_vector.second;
+   if( nextcoord <  FieldHeight - player_paddles[1].dimensions.second && nextcoord > -FieldHeight)
+       player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
+  
+   nextcoord = game_ball.position.second + game_ball.velocity_vector.second;
+   if( nextcoord <  FieldHeight && nextcoord > -FieldHeight)
+       game_ball.position.second += game_ball.velocity_vector.second;
+   else
+       game_ball.velocity_vector.second *= -1;
+
+   nextcoord = game_ball.position.first + game_ball.velocity_vector.first;
+   if( nextcoord <  FieldHeight && nextcoord > -FieldHeight)
+       game_ball.position.first += game_ball.velocity_vector.first;
+   else
+       score(PLAYER_ONE, player_scores, end_score);
+   
 
    // collisions
    applyCollision(game_ball, player_paddles);

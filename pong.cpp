@@ -70,14 +70,20 @@ void drawField(int ScreenWidth, int ScreenHeight, int scores[])
     glEnable( GL_LINE_STIPPLE );
     glLineStipple( 1, 0xFF00 );
     DrawLine( 0, -ScreenHeight * 2, 0, ScreenHeight * 2, White );
-    
-    float white_set[3] = {White[0], White[1], White[2]};
+
+    // draw the field boundaries
+    glDisable( GL_LINE_STIPPLE );
+    DrawLine(-ScreenWidth *1.5, ScreenHeight *1.5, ScreenWidth *1.5, ScreenHeight *1.5, White);
+    DrawLine(-ScreenWidth *1.5, -ScreenHeight *1.5, ScreenWidth *1.5, -ScreenHeight *1.5, White);
+    DrawLine(-ScreenWidth *1.5, -ScreenHeight *1.5, -ScreenWidth *1.5, ScreenHeight *1.5, White);
+    DrawLine( ScreenWidth *1.5, -ScreenHeight *1.5, ScreenWidth *1.5, ScreenHeight *1.5, White);
 
     // draw each player's score
+    float white_set[3] = {White[0], White[1], White[2]};
     if(scores[0] >= 0)
-        DrawStrokeString( std::to_string(scores[0]).c_str(), -ScreenWidth +128, -ScreenHeight + 128, white_set );
+        DrawStrokeString( std::to_string(scores[0]).c_str(), -ScreenWidth - 128, ScreenHeight + 64, white_set );
     if(scores[1] >= 0)
-        DrawStrokeString( std::to_string(scores[1]).c_str(), ScreenWidth - 128, -ScreenHeight + 128, white_set );
+        DrawStrokeString( std::to_string(scores[1]).c_str(), ScreenWidth + 128, ScreenHeight + 64, white_set );
 }
 
   /***************************************************************************//**
@@ -176,19 +182,16 @@ void display_menu( Menu &menu, int x, int y, int spacing )
 void DrawStrokeString( const char *string, float x, float y, float color[] )
 {
     glColor3f( color[0], color[1], color[2] );
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glTranslatef( x, y, 0 );
-    // while ( *string ) glutStrokeCharacter( GLUT_STROKE_ROMAN, *string++ );
-    glutStrokeString( GLUT_STROKE_ROMAN, (const unsigned char *)string );
-    glPopMatrix();
+    glRasterPos2f( x, y );
+    // while ( *string ) glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_24, *string++ );
+    glutBitmapString( GLUT_BITMAP_HELVETICA_18, (const unsigned char *)string );
 }
 
  /***************************************************************************//**
  * DrawLine
  * Authors - Dr. John Weiss
  *
- * Draws a stroke string for a game menu
+ * Draws a line
  ******************************************************************************/
 void DrawLine( float x1, float y1, float x2, float y2, const float color[] )
 {

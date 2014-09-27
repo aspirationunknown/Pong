@@ -13,7 +13,7 @@ void endGame(player winner);
 void drawBall(Ball* ball);
 void drawPaddle(Paddle* paddle);
 void drawField();
-void score(player scorer);
+void score(player scorer, int player_scores[], int end_score);
 
 // display functions
 void display_menu(Menu &menu, int x, int y, int spacing);
