@@ -8,23 +8,7 @@ const int EscapeKey = 27;
 // screens
 enum screen {MAINMENU, PRACTICE, GAME, PAUSE};
 
-// keyboard press flags
-bool up_pressed;
-bool down_pressed;
-bool left_pressed;
-bool right_pressed;
-
-bool w_pressed;
-bool s_pressed;
-bool a_pressed;
-bool d_pressed;
-
-bool enter_pressed;
-bool escape_pressed;
-bool shift_pressed;
-
 // function prototypes
-void drawMenuText(Menu menu);
 void endGame(player winner);
 void drawBall();
 void drawPaddle();
@@ -35,4 +19,4 @@ void score(player scorer);
 void display_menu(Menu menu, int x, int y, int spacing);
 void display_practice(Paddle player_one_paddle, Paddle cpu_paddle, Ball ball);
 void display_game(int player_one_score, int player_two_score, Paddle player_one_paddle, Paddle player_two_paddle, Ball ball);
-void DrawStrokeString( const char *string, float x, float y, const float color[] );
+void DrawStrokeString( const char *string, float x, float y, float color[] );

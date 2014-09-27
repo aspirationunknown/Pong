@@ -97,6 +97,7 @@ struct Menu
     //Menu(std::string* opt, int sel_index, fptr* opt_actions, float* bck_color, float* txt_color, float* sel_color);
 
     std::string* options;
+    int n;
     int selection_index;
     fptr* option_actions;
     float background_color[3];

@@ -29,8 +29,8 @@
 
 using namespace std;
 
-Menu main_menu;
-Menu pause_menu;
+Menu* main_menu;
+Menu* pause_menu;
 
 // keyboard press flags
 bool up_pressed;
@@ -85,6 +85,11 @@ void keyboard_down( unsigned char key, int x, int y );
 void special_up( int key, int x, int y );
 void special_down( int key, int x, int y );
 
+// step functions
+void menu_step(Menu* menu);
+void practice_step();
+void game_step();
+
 // functions by Dr. Weiss, for loading and displaying bmp files
 bool LoadBmpFile( const char* filename, int &NumRows, int &NumCols, unsigned char* &ImagePtr );
 void displayImage( int x, int y, int w, int h, byte *image );
@@ -100,17 +105,16 @@ void displayImage( int x, int y, int w, int h, byte *image );
             argv - the command line arguments.
  ******************************************************************************/
 int main ( int argc, char *argv[] )
-{
+{  
+
     //load the splash screen
     if ( !LoadBmpFile( splashscreen_filepath, splashscreen_rows, splashscreen_cols, splashscreen_image ) )
     {
 	cerr << "Error: unable to load file " << splashscreen_filepath << endl;
         return -1;
     }
-
-    mainMenuSetup();
-
     //start displaying
+    mainMenuSetup();
     glutInit(&argc, argv);
     initOpenGL();
     glutMainLoop();    
@@ -148,6 +152,29 @@ void initOpenGL( void )
 
 void step ( int value )
 {
+    
+    if( escape_pressed )
+    {
+        resume_screen = current_screen;
+        current_screen = PAUSE;  
+    }  
+
+    switch(current_screen)
+    {
+        case MAINMENU:
+            menu_step( main_menu );
+            break;
+        case PRACTICE:
+            practice_step();
+            break;
+        case GAME:
+            game_step();
+            break;
+        case PAUSE:
+            menu_step(pause_menu);
+        default:
+            break;
+    }
     glutPostRedisplay();
     glutTimerFunc( 1000/fps, step, 0 );
 }
@@ -245,6 +272,7 @@ void reshape( int w, int h )
  ******************************************************************************/
 void mainMenu_newGame( void )
 {
+
 }
 
  /***************************************************************************//**
@@ -288,24 +316,26 @@ void mainMenu_exit( void )
  ******************************************************************************/
 void mainMenuSetup()
 {
-    main_menu.options = new string[4];
-    main_menu.options[0] = "New Game";
-    main_menu.options[1] = "Practice";
-    main_menu.options[2] = "About";
-    main_menu.options[3] = "Exit";
+    main_menu = new Menu();
 
-    main_menu.option_actions = new fptr[4];
-    main_menu.option_actions[0] = mainMenu_newGame;
-    main_menu.option_actions[1] = mainMenu_practice;
-    main_menu.option_actions[2] = mainMenu_about;
-    main_menu.option_actions[3] = mainMenu_exit;
+    main_menu->options = new string[4];
+    main_menu->options[0] = "New Game";
+    main_menu->options[1] = "Practice";
+    main_menu->options[2] = "About";
+    main_menu->options[3] = "Exit";
 
-    assignColor(main_menu.background_color, Black);
-    assignColor(main_menu.text_color, White);
-    assignColor(main_menu.selection_color, Yellow);
+    main_menu->option_actions = new fptr[4];
+    main_menu->option_actions[0] = mainMenu_newGame;
+    main_menu->option_actions[1] = mainMenu_practice;
+    main_menu->option_actions[2] = mainMenu_about;
+    main_menu->option_actions[3] = mainMenu_exit;
 
-    main_menu.selection_index = 0;
-    main_menu.n = 4;
+    assignColor(main_menu->background_color, Black);
+    assignColor(main_menu->text_color, White);
+    assignColor(main_menu->selection_color, Yellow);
+
+    main_menu->selection_index = 0;
+    main_menu->n = 4;
 }
 
  /***************************************************************************//**
@@ -330,7 +360,7 @@ void keyboard_down( unsigned char key, int x, int y )
         case 'd':
             d_pressed = true;
             break;
-        case '\n':
+        case 13:
             enter_pressed = true;
             break;
         case 27:
@@ -422,4 +452,64 @@ void special_up( int key, int x, int y )
         default:
             break;
     }
+}
+
+
+ /***************************************************************************//**
+ * Menu Step
+ * Authors - Dr. John Weiss
+ *
+ * Does a step in a given menu, moves the selector and fires the callback
+        functions if necessary
+ * 
+ * Parameters -
+        menu - the menu to step through
+ ******************************************************************************/
+void menu_step(Menu* menu)
+{
+    if( down_pressed )
+    {
+        if (menu->selection_index == 0)
+        {
+            menu->selection_index = menu->n - 1;
+            down_pressed = false;
+        }
+        else
+        {
+            menu->selection_index -= 1;
+            down_pressed = false;
+        }
+    }
+    else if ( up_pressed )
+    {
+        up_pressed = false;
+        menu->selection_index = (menu->selection_index + 1 ) % menu->n;
+    }
+    else if ( enter_pressed )
+    {
+        enter_pressed = false;
+        menu->option_actions[menu->selection_index]();
+    }
+}
+
+ /***************************************************************************//**
+ * DrawStrokeString
+ * Authors - Dr. John Weiss
+ *
+ * Does a step in the practice game, telling what parts of the game's state
+        need to change.
+ ******************************************************************************/
+void practice_step()
+{
+}
+
+ /***************************************************************************//**
+ * Game Step
+ * Authors - Dr. John Weiss
+ *
+ * Does a step in the main game, telling what parts of the game's state
+        need to change.
+ ******************************************************************************/
+void game_step()
+{
 }

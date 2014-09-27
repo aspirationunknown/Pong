@@ -131,15 +131,18 @@ void display_game(int player_one_score, int player_two_score, Paddle player_one_
  * Parameters
             menu - the menu to display
  ******************************************************************************/
-void display_menu( Menu menu, int x, int y, int spacing )
+void display_menu( Menu* menu, int x, int y, int spacing )
 {
-    for(int i = 0; i < menu.n; i++)
+    for(int i = 0; i < menu->n; i++)
     {
-//USE THREE SEPARATE DOUBLES IN THE CALL
-        if( menu.selection_index == i )
-            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, Yellow );
+        if( menu->selection_index == i )
+        {
+            DrawStrokeString( menu->options[i].c_str(), x, y + i * spacing, menu->selection_color );
+        }
         else
-            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, White );
+        {
+            DrawStrokeString( menu->options[i].c_str(), x, y + i * spacing, menu->text_color );
+        }
     }
 }
 
@@ -149,9 +152,9 @@ void display_menu( Menu menu, int x, int y, int spacing )
  *
  * Draws a stroke string for a game menu
  ******************************************************************************/
-void DrawStrokeString( const char *string, float x, float y, const float color[] )
+void DrawStrokeString( const char *string, float x, float y, float color[] )
 {
-    glColor3fv( color );
+    glColor3f( color[0], color[1], color[2] );
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glTranslatef( x, y, 0 );
