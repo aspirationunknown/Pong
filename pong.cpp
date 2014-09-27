@@ -61,7 +61,7 @@ void drawPaddle(Paddle &paddle)
  *
  * Draws the playing field, including the centre line and scores
  ******************************************************************************/
-void drawField(int ScreenWidth, int ScreenHeight)
+void drawField(int ScreenWidth, int ScreenHeight, int scores[])
 {
     // set the background color to black
     glClearColor(Black[0], Black[1], Black[2], 1.0f);
@@ -71,9 +71,13 @@ void drawField(int ScreenWidth, int ScreenHeight)
     glLineStipple( 1, 0xFF00 );
     DrawLine( 0, -ScreenHeight * 2, 0, ScreenHeight * 2, White );
     
+    float white_set[3] = {White[0], White[1], White[2]};
+
     // draw each player's score
-
-
+    if(scores[0] >= 0)
+        DrawStrokeString( std::to_string(scores[0]).c_str(), -ScreenWidth +128, -ScreenHeight + 128, white_set );
+    if(scores[1] >= 0)
+        DrawStrokeString( std::to_string(scores[1]).c_str(), ScreenWidth - 128, -ScreenHeight + 128, white_set );
 }
 
   /***************************************************************************//**
@@ -107,7 +111,8 @@ void score(player scorer, int player_scores[], int end_score)
  ******************************************************************************/
 void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
-    drawField(ScreenWidth, ScreenHeight);
+    int scores[2] = {-1, -1};
+    drawField(ScreenWidth, ScreenHeight, scores);
     drawBall(ball);
     drawPaddle(player_one_paddle);
     drawPaddle(cpu_paddle);
@@ -125,9 +130,9 @@ void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball,
             player_one_paddle - the paddle under player one's player's control
             ball - the ball on the field
  ******************************************************************************/
-void display_game(int player_one_score, int player_two_score, Paddle &player_one_paddle, Paddle &player_two_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
+void display_game(int scores[], Paddle &player_one_paddle, Paddle &player_two_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
-    drawField(ScreenWidth, ScreenHeight);
+    drawField(ScreenWidth, ScreenHeight, scores);
     drawBall(ball);
     drawPaddle(player_one_paddle);
     drawPaddle(player_two_paddle);
