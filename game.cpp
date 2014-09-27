@@ -216,7 +216,7 @@ void display( void )
             display_practice(player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
             break;
         case GAME:
-            display_game(player_scores[0], player_scores[1], player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
+            display_game(player_scores, player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
             break;
         case PAUSE:
             display_menu(pause_menu, 0, -ScreenHeight, 128);
@@ -689,5 +689,4 @@ void game_step()
 
    // collisions
    applyCollision(game_ball, player_paddles);
-
 }
