@@ -5,7 +5,7 @@
  * This file contains functionality for the structures in the pong game.
  ******************************************************************************/
 #include "structs.h"
- 
+#include <iostream> 
 
  /***************************************************************************//**
  * applyCollision
@@ -13,52 +13,116 @@
  *
  * Takes a ball and a paddle and applies a velocity modification based on
     whether or not the paddle is in contact with the ball.
- ******************************************************************************/
-void applyCollision(Ball &ball, Paddle paddle[2])
-{
-    //determine if ball and paddle collide, assuming (0,0) is in upper
-    //left-hand corner of window
+******************************************************************************/
+bool applyCollision(Ball &ball, Paddle paddle[2])
+{   
+    int paddle_next_location; //where the paddle will be in the next step
+    int ball_next_location; //where the ball will be in the next step
+    bool should_collide = false;
 
-    //use ball position(center) and diameter, paddle position(upper left-hand 
+    //use ball position(center) and diameter, paddle position(lower left-hand 
     //corner) and dimensions to determine collision.
 
-    //player1 collision: paddle right x pos is > ball x pos - diameter/2
-    //&& ball y pos +- diameter/2 is in between paddle y pos and y pos - length
-    if((ball.position.first - ball.diameter / 2.0 < 
-        paddle[PLAYER_ONE].position.first + 
-        paddle[PLAYER_ONE].dimensions.first) && 
-       (ball.position.second + ball.diameter / 2.0 < 
-        paddle[PLAYER_ONE].position.second) &&
-       (ball.position.second - ball.diameter / 2.0 >
-        paddle[PLAYER_ONE].position.second - 
-        paddle[PLAYER_ONE].dimensions.second))
+    //if paddle is moving predict where paddle will be at next step and where
+    //ball will be next step. if they would have passed through each other
+    //cause collision.
+    if(paddle[PLAYER_ONE].velocity_vector.first > 0)
     {
-        ball.velocity_vector.first *= -1;
-        applySpin(ball, paddle[PLAYER_ONE]);
-        return;
+        //predict paddle's next location
+        //predict ball's next location
+        //if there should be a collision 
+        paddle_next_location = paddle[PLAYER_ONE].position.first + 
+                               paddle[PLAYER_ONE].velocity_vector.first;
+        ball_next_location = ball.position.first + ball.velocity_vector.first;
+        
+        if((ball_next_location - ball.diameter / 2.0 < 
+            paddle_next_location + 
+            paddle[PLAYER_ONE].dimensions.first) && 
+           (ball.position.second - ball.diameter / 2.0 > 
+            paddle[PLAYER_ONE].position.second) &&
+           (ball.position.second + ball.diameter / 2.0 <
+            paddle[PLAYER_ONE].position.second + 
+            paddle[PLAYER_ONE].dimensions.second) &&
+           (ball.position.first - ball.diameter / 2.0 > //checks if ball is not
+            paddle[PLAYER_ONE].position.first +
+            paddle[PLAYER_ONE].velocity_vector.first))         //behind paddle
+        {
+            ball.velocity_vector.first *= -1;
+            applySpin(ball, paddle[PLAYER_ONE]);
+            return true;
+        }
+
+    }
+    else
+    {
+        //player1 collision: paddle right x pos is > ball x pos - diameter/2
+        //&& ball y pos +- diameter/2 is in between paddle y pos and y pos - 
+        //length
+        if((ball.position.first - ball.diameter / 2.0 < 
+            paddle[PLAYER_ONE].position.first + 
+            paddle[PLAYER_ONE].dimensions.first) && 
+           (ball.position.second - ball.diameter / 2.0 > 
+            paddle[PLAYER_ONE].position.second) &&
+           (ball.position.second + ball.diameter / 2.0 <
+            paddle[PLAYER_ONE].position.second + 
+            paddle[PLAYER_ONE].dimensions.second) &&
+           (ball.position.first - ball.diameter / 2.0 > //checks if ball is not
+            paddle[PLAYER_ONE].position.first))         //behind paddle
+        {
+            ball.velocity_vector.first *= -1;
+            applySpin(ball, paddle[PLAYER_ONE]);
+            return true;
+        }
     }
     
-    //player2 collision: paddle x pos  is < ball x pos + diameter/2
-    //&& ball y pos +- diameter/2 is in between paddle y pos and y pos - length
-    if((ball.position.first - ball.diameter / 2.0 > 
-        paddle[PLAYER_TWO].position.first) &&
-       (ball.position.second + ball.diameter / 2.0 < 
-        paddle[PLAYER_TWO].position.second) &&
-       (ball.position.second - ball.diameter / 2.0 >
-        paddle[PLAYER_TWO].position.second -
-        paddle[PLAYER_TWO].dimensions.second))
+    if(paddle[PLAYER_TWO].velocity_vector.first < 0)
     {
-        ball.velocity_vector.first *= -1;
-        applySpin(ball, paddle[PLAYER_TWO]);
-        return;
+        //predict paddle's next location
+        //predict ball's next location
+        //if there should be a collision 
+        paddle_next_location = paddle[PLAYER_TWO].position.first + 
+                               paddle[PLAYER_TWO].velocity_vector.first;
+        ball_next_location = ball.position.first + ball.velocity_vector.first;
+        
+        if((ball_next_location + ball.diameter / 2.0 >
+            paddle_next_location) &&
+           (ball.position.second - ball.diameter / 2.0 > 
+            paddle[PLAYER_TWO].position.second) &&
+           (ball.position.second + ball.diameter / 2.0 <
+            paddle[PLAYER_TWO].position.second +
+            paddle[PLAYER_TWO].dimensions.second) &&
+           (ball.position.first + ball.diameter / 2.0 < //makes sure ball is not
+            paddle[PLAYER_TWO].position.first -
+            paddle[PLAYER_TWO].velocity_vector.first +         //behind paddle
+            paddle[PLAYER_TWO].dimensions.first))
+        {
+            ball.velocity_vector.first *= -1;
+            applySpin(ball, paddle[PLAYER_TWO]);
+            return true;
+        }
     }
-    //apply appropriate vector change to ball based on where on the paddle
-    //it collided.
-
-    //determine if ball and wall collide.
-    //apply appropriate vector change to ball if it hits a wall.
-    //if ball y pos - diameter/2 is < bottom wall or ball y pos + diameter/2 
-    //is > top wall.
+    else
+    {
+        //player2 collision: paddle x pos  is < ball x pos + diameter/2
+        //&& ball y pos +- diameter/2 is in between paddle y pos and y pos - 
+        //length
+        if((ball.position.first + ball.diameter / 2.0 >
+            paddle[PLAYER_TWO].position.first) &&
+           (ball.position.second - ball.diameter / 2.0 > 
+            paddle[PLAYER_TWO].position.second) &&
+           (ball.position.second + ball.diameter / 2.0 <
+            paddle[PLAYER_TWO].position.second +
+            paddle[PLAYER_TWO].dimensions.second) &&
+           (ball.position.first + ball.diameter / 2.0 < //makes sure ball is not
+            paddle[PLAYER_TWO].position.first +         //behind paddle
+            paddle[PLAYER_TWO].dimensions.first))
+        {
+            ball.velocity_vector.first *= -1;
+            applySpin(ball, paddle[PLAYER_TWO]);
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -89,6 +153,7 @@ void movePaddle(Paddle paddle, player mover)
  ******************************************************************************/
 void applySpin(Ball &ball, Paddle &paddle)
 {
+    bool collision = false;
     int moving = 0; // 1 = up, -1 = down, 0 = not moving
     int spin = 0; //1 = top, -1 = bottom, 0 = middle
   
@@ -113,23 +178,30 @@ void applySpin(Ball &ball, Paddle &paddle)
        paddle.position.second / 3.0)
     {
         spin = 1;
+        collision = true;
     } 
     //if ball hits bottom third of paddle make y velocity negative.
     else if(ball.position.second < paddle.position.second -
             paddle.position.second * 2 / 3.0)
     {
         spin = -1;
+        collision = true;
     }
     ///if ball hits middle third of paddle do not change y velocity.
     else
     {
         spin = 0;
+        collision = true;
     }
-
+    std::cout << "ball velocity: " << ball.velocity_vector.first << ", " << ball.velocity_vector.second << std::endl;
     //formula for new ball velocity:
-    //x_bvelocity = (xbvelocity > 0) ? -(x_bvelocity + x_pvelocity):
+    //x_bvelocity = (xbvelocity > 0) ? -(x_bvelocity + x_pvelocity): -x_bvelocity + x_pvelocity
     //                                  
     //y bvelocity = 
+    ball.velocity_vector.first = (collision && ball.velocity_vector.first > 0) ? (ball.velocity_vector.first + abs(paddle.velocity_vector.first)) :
+                                 (ball.velocity_vector.first + abs(paddle.velocity_vector.first));
+    ball.velocity_vector.second = 0;
+    collision = false;
 }
 
 /*Ball::Ball(int diam, int max_v, std::pair<int, int> v_vector, std::pair<int, int> pos, float* clr)
