@@ -706,6 +706,11 @@ void practice_step()
        game_ball.position.second = 0;
        game_ball.velocity_vector.first = 15 * turn;
        turn *= -1;  //change serving turn
+
+       // reset the paddle size
+       paddle_scale = 1.0;
+       player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
+       player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
    }
   
    // move the cpu paddle
@@ -836,6 +841,11 @@ void game_step()
        game_ball.position.second = 0;
        game_ball.velocity_vector.first = 15 * turn;
        turn *= -1;  //change serving turn
+       
+       // reset the paddle size
+       paddle_scale = 1.0;
+       player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
+       player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
    }
 
    // collisions
