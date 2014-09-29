@@ -26,6 +26,8 @@
  *
  ******************************************************************************/
 #include "pong.h"
+#include <cmath>
+
 
 using namespace std;
 
@@ -44,7 +46,7 @@ bool a_pressed;
 bool d_pressed;
 
 bool enter_pressed;
-bool escape_pressed;
+bool space_pressed;
 bool shift_pressed;
 
 // splashscreen info
@@ -55,7 +57,6 @@ byte* splashscreen_image;
 
 // opening the readme
 const char* open_readme_command = "xdg-open README";
-const char* focus_readme_command = "wmctrl -a README";
 //const char* open_readme_command = "notepad.exe README";
 
 // screen state
@@ -63,12 +64,6 @@ screen current_screen = MAINMENU;
 screen resume_screen = MAINMENU;
 int ScreenWidth = 1280;
 int ScreenHeight = 512;
-
-int FieldWidth = 1280;
-int FieldHeight = 512;
-
-// world coordinate window extents: -1000 to +1000 in smaller dimension
-const float ViewplaneSize = 1000.0;
 
 // the global variables associated with the game
 int player_scores[2] = { 0, 0 };
@@ -78,11 +73,22 @@ int end_score = 10;    // the score at which a player wins the game
 int fps = 60;
 int turn = 1; // 1 is serve right, -1 is serve left
 
+int full_paddlesize = 120; // the starting size of the paddle
+double paddle_scale = 1.0; // for shrinking the paddle over time
+double paddle_scalemin = .20; // the smallest possible paddle size multiplier
+double paddle_scalespeed = .01; // the amount the paddle is shrunk by every step
+
+int cpu_offset;
+int cpu_direction = 1; // -1 is down, 1 is up
+int cpu_offset_max; // the maximum offset.  It must be greater than the paddle height / 2
+float cpu_difficulty = 1.5; // the amount of space the cpu paddle can be off by.  1 will never miss, while increasing values are easier.
+
 // function prototypes
 void initOpenGL( void );
 void mainMenuSetup( void );
 void pauseMenuSetup( void );
 void pauseMenu_resume( void );
+void practiceSetup( void );
 void gameSetup( void );
 void display( void );
 void step( int value);
@@ -160,15 +166,7 @@ void initOpenGL( void )
 
 void step ( int value )
 {
-    
-    if( escape_pressed && current_screen != PAUSE)
-    {
-        resume_screen = current_screen;
-        current_screen = PAUSE;
-        escape_pressed = false;
-    }
-
-    switch(current_screen)
+    switch( current_screen )
     {
         case MAINMENU:
             menu_step( main_menu );
@@ -180,7 +178,20 @@ void step ( int value )
             game_step();
             break;
         case PAUSE:
+            if( space_pressed )
+            {
+                space_pressed = false;
+                pauseMenu_resume();
+            }
             menu_step(pause_menu);
+            break;
+        case WIN:
+            if (space_pressed || enter_pressed)
+            {
+                space_pressed = false;
+                enter_pressed = false;
+                current_screen = MAINMENU;
+            }
         default:
             break;
     }
@@ -213,16 +224,19 @@ void display( void )
     {
         case MAINMENU:
             display_splashscreen();
-            display_menu(main_menu, 0, -ScreenHeight, 128);
+            display_menu(main_menu, 0, 0, 96);
             break;
         case PRACTICE:
-            display_practice(player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
+            display_game(player_scores, player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
             break;
         case GAME:
             display_game(player_scores, player_paddles[0], player_paddles[1], game_ball, ScreenWidth, ScreenHeight);
             break;
         case PAUSE:
-            display_menu(pause_menu, 0, -ScreenHeight, 128);
+            display_menu(pause_menu, 0, 0, 96);
+            break;
+        case WIN:
+            display_win(player_scores, ScreenWidth, ScreenHeight);
         default:
             break;
     }
@@ -251,19 +265,13 @@ void display_splashscreen()
  ******************************************************************************/
 void reshape( int w, int h )
 {
-    // store new window dimensions globally
-    ScreenWidth = w;
-    ScreenHeight = h;
-    FieldWidth = w * 1.5;
-    FieldHeight = h * 1.5;
-
     // orthographic projection of 3-D scene onto 2-D, maintaining aspect ratio
     glMatrixMode( GL_PROJECTION );      // use an orthographic projection
     glLoadIdentity();                   // initialize transformation matrix
     if ( w > h )                        // use width:height aspect ratio to specify view extents
-        gluOrtho2D( -ViewplaneSize * w / h, ViewplaneSize * w / h, -ViewplaneSize, ViewplaneSize );
+        gluOrtho2D( - ScreenWidth, ScreenWidth, - ScreenHeight, ScreenHeight );
     else
-        gluOrtho2D( -ViewplaneSize, ViewplaneSize, -ViewplaneSize * h / w, ViewplaneSize * h / w );
+        gluOrtho2D( - ScreenWidth, ScreenWidth, -ScreenHeight, ScreenHeight );
     glViewport( 0, 0, w, h );           // adjust viewport to new window
 
     // switch back to (default) model view mode, for transformations
@@ -335,6 +343,8 @@ void mainMenu_newGame( void )
 void mainMenu_practice( void )
 {
     gameSetup();
+    practiceSetup();
+    pauseMenuSetup();
     current_screen = PRACTICE;
 }
 
@@ -347,7 +357,6 @@ void mainMenu_practice( void )
 void mainMenu_about( void )
 {
     system(open_readme_command);
-    system(focus_readme_command);
 }
 
  /***************************************************************************//**
@@ -422,28 +431,48 @@ void pauseMenuSetup()
  ******************************************************************************/
 void gameSetup()
 {
+    end_score = 10;
+    paddle_scale = 1.0;
+
+    player_scores[0] = 0;
+    player_scores[1] = 0;
+
     game_ball.position.first = 0;
     game_ball.position.second = 0;
-    game_ball.diameter = 64;
-    game_ball.velocity_vector.first = 20 * turn;
+    game_ball.diameter = 16;
+    game_ball.velocity_vector.first = 15 * turn;
     turn *= -1;  //change serving turn
     assignColor(game_ball.color, White);
     
-    player_paddles[0].dimensions.first = 40;
-    player_paddles[0].dimensions.second = 300;
-    player_paddles[0].movement_speed.first = 15;
-    player_paddles[0].movement_speed.second = 20;
-    player_paddles[0].position.first = -ScreenWidth + 64 + player_paddles[0].dimensions.first;
+    player_paddles[0].dimensions.first = 20;
+    player_paddles[0].dimensions.second = full_paddlesize;
+    player_paddles[0].movement_speed.first = 7;
+    player_paddles[0].movement_speed.second = 12;
+    player_paddles[0].position.first = -ScreenWidth + player_paddles[0].dimensions.first;
     player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second/2;
     assignColor(player_paddles[0].color, White);
 
-    player_paddles[1].dimensions.first = 40;
-    player_paddles[1].dimensions.second = 300;
-    player_paddles[1].movement_speed.first = 15;
-    player_paddles[1].movement_speed.second = 20;
-    player_paddles[1].position.first = ScreenWidth - 64 - player_paddles[1].dimensions.first;
+    player_paddles[1].dimensions.first = 20;
+    player_paddles[1].dimensions.second = full_paddlesize;
+    player_paddles[1].movement_speed.first = 7;
+    player_paddles[1].movement_speed.second = 12;
+    player_paddles[1].position.first = ScreenWidth - player_paddles[1].dimensions.first;
     player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second/2;
     assignColor(player_paddles[1].color, White);
+}
+
+
+ /***************************************************************************//**
+ * practiceSetup
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Sets up the practice-specific objects
+ ******************************************************************************/
+void practiceSetup()
+{
+    cpu_offset = 0;
+    cpu_offset_max = player_paddles[1].dimensions.second / 2 + cpu_difficulty * game_ball.diameter;
+    player_paddles[1].position.first -= 128;
 }
 
  /***************************************************************************//**
@@ -456,6 +485,14 @@ void keyboard_down( unsigned char key, int x, int y )
 {
     switch( key )
     {
+        case '-':
+            if( fps > 5 )
+                fps -= 5;
+            break;
+        case '=':
+        case '+':
+            fps += 5;
+            break;
         case 'w':
             w_pressed = true;
             break;
@@ -471,8 +508,11 @@ void keyboard_down( unsigned char key, int x, int y )
         case 13:
             enter_pressed = true;
             break;
+        case ' ':
+            space_pressed = true;
+            break;
         case 27:
-            escape_pressed = true;
+            exit ( 0 );
         default:
             break;
     }
@@ -503,8 +543,8 @@ void keyboard_up( unsigned char key, int x, int y )
         case '\n':
             enter_pressed = false;
             break;
-        case 27:
-            escape_pressed = false;
+        case ' ':
+            space_pressed = false;
         default:
             break;
     }
@@ -601,7 +641,7 @@ void menu_step(Menu &menu)
 }
 
  /***************************************************************************//**
- * DrawStrokeString
+ * practice_step
  * Authors - Dr. John Weiss
  *
  * Does a step in the practice game, telling what parts of the game's state
@@ -609,7 +649,15 @@ void menu_step(Menu &menu)
  ******************************************************************************/
 void practice_step()
 {
-   // horizontal movement player 1
+  // check for game pause
+  if( space_pressed )
+  {
+      resume_screen = PRACTICE;
+      current_screen = PAUSE;
+      space_pressed = false;
+  }
+
+      // horizontal movement player 1
    if( a_pressed && d_pressed )
         player_paddles[0].velocity_vector.first = 0;
    else if( a_pressed )
@@ -617,9 +665,9 @@ void practice_step()
    else if( d_pressed )
         player_paddles[0].velocity_vector.first = player_paddles[0].movement_speed.first;
    else
-        player_paddles[0].velocity_vector.first /= 2;
+        player_paddles[0].velocity_vector.first /= 1.2;
 
-   // horizontal movement player 1
+   // vertical movement player 1
    if( s_pressed && w_pressed )
         player_paddles[0].velocity_vector.second = 0;
    else if( s_pressed )
@@ -627,12 +675,68 @@ void practice_step()
    else if( w_pressed )
         player_paddles[0].velocity_vector.second = player_paddles[0].movement_speed.second;
    else
-        player_paddles[0].velocity_vector.second /= 2;
+        player_paddles[0].velocity_vector.second /= 1.2;
 
    // apply velocity
-   player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
-   player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
-   player_paddles[1].position.second = game_ball.position.second - (player_paddles[1].dimensions.second / 2);    
+   int nextcoord = player_paddles[0].position.first + player_paddles[0].velocity_vector.first;
+   if( nextcoord <  -player_paddles[0].dimensions.first - 16 && nextcoord > -ScreenWidth)
+       player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
+
+   nextcoord = player_paddles[0].position.second + player_paddles[0].velocity_vector.second;
+   if( nextcoord <  ScreenHeight - player_paddles[0].dimensions.second && nextcoord > -ScreenHeight)
+       player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
+   
+   nextcoord = game_ball.position.second + game_ball.velocity_vector.second;
+   if( nextcoord <  ScreenHeight && nextcoord > -ScreenHeight)
+       game_ball.position.second += game_ball.velocity_vector.second;
+   else
+       game_ball.velocity_vector.second *= -1;
+
+   nextcoord = game_ball.position.first + game_ball.velocity_vector.first;
+   if( nextcoord <  ScreenWidth + game_ball.diameter && nextcoord > -ScreenWidth - game_ball.diameter)
+       game_ball.position.first += game_ball.velocity_vector.first;
+   else
+   {
+       // volley!
+       if(nextcoord > 0)
+           score(PLAYER_ONE, player_scores, end_score, current_screen);
+       else
+           score(PLAYER_TWO, player_scores, end_score, current_screen);
+       game_ball.position.first = 0;
+       game_ball.position.second = 0;
+       game_ball.velocity_vector.first = 15 * turn;
+       turn *= -1;  //change serving turn
+   }
+  
+   // move the cpu paddle
+   player_paddles[1].position.second = game_ball.position.second - player_paddles[1].dimensions.second / 2 + cpu_offset;
+
+   // change the CPU's paddle offset
+
+   // change direction if the max will be reached
+   if (abs(cpu_offset + cpu_direction) > cpu_offset_max)
+       cpu_direction *= -1;
+   cpu_offset += cpu_direction;
+
+   // make sure the cpu paddle is not past the bounds
+   nextcoord = player_paddles[1].position.second;
+
+   if( nextcoord >  ScreenHeight - player_paddles[1].dimensions.second)
+       player_paddles[1].position.second = ScreenHeight- player_paddles[1].dimensions.second;
+   else if(nextcoord < -ScreenHeight)
+       player_paddles[1].position.second = -ScreenHeight;
+
+   // apply collisions
+   if(applyCollision(game_ball, player_paddles))
+   {
+       // shrink the paddles
+       if(paddle_scale >= paddle_scalemin)
+       {
+           player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
+           player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
+           paddle_scale -= paddle_scalespeed;
+       }
+   }
 }
 
  /***************************************************************************//**
@@ -644,6 +748,14 @@ void practice_step()
  ******************************************************************************/
 void game_step()
 {
+   //check for pause
+   if( space_pressed )
+   {
+       resume_screen = GAME;
+       current_screen = PAUSE;
+       space_pressed = false;
+   }
+
    // horizontal movement player 1
    if( a_pressed && d_pressed )
         player_paddles[0].velocity_vector.first = 0;
@@ -654,7 +766,7 @@ void game_step()
    else
         player_paddles[0].velocity_vector.first /= 1.2;
 
-   // horizontal movement player 1
+   // vertical movement player 1
    if( s_pressed && w_pressed )
         player_paddles[0].velocity_vector.second = 0;
    else if( s_pressed )
@@ -674,7 +786,7 @@ void game_step()
    else
         player_paddles[1].velocity_vector.first /= 1.2;
 
-   // horizontal movement player 2
+   // vertical movement player 2
    if( down_pressed && up_pressed )
         player_paddles[1].velocity_vector.second = 0;
    else if( down_pressed )
@@ -687,42 +799,54 @@ void game_step()
    // apply velocity
    
    int nextcoord = player_paddles[0].position.first + player_paddles[0].velocity_vector.first;
-   if( nextcoord <  -player_paddles[1].dimensions.first && nextcoord > -FieldWidth)
+   if( nextcoord <  -player_paddles[0].dimensions.first - 16 && nextcoord > -ScreenWidth)
        player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
 
    nextcoord = player_paddles[1].position.first + player_paddles[1].velocity_vector.first;
-   if( nextcoord <  FieldWidth - player_paddles[1].dimensions.first && nextcoord > 0)
+   if( nextcoord <  ScreenWidth - player_paddles[1].dimensions.first && nextcoord > 16)
        player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
 
    nextcoord = player_paddles[0].position.second + player_paddles[0].velocity_vector.second;
-   if( nextcoord <  FieldHeight - player_paddles[1].dimensions.second && nextcoord > -FieldHeight)
+   if( nextcoord <  ScreenHeight - player_paddles[0].dimensions.second && nextcoord > -ScreenHeight)
        player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
 
    nextcoord = player_paddles[1].position.second + player_paddles[1].velocity_vector.second;
-   if( nextcoord <  FieldHeight - player_paddles[1].dimensions.second && nextcoord > -FieldHeight)
+   if( nextcoord <  ScreenHeight - player_paddles[1].dimensions.second && nextcoord > -ScreenHeight)
        player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
   
+   // ball velocity
+
    nextcoord = game_ball.position.second + game_ball.velocity_vector.second;
-   if( nextcoord <  FieldHeight && nextcoord > -FieldHeight)
+   if( nextcoord <  ScreenHeight && nextcoord > -ScreenHeight)
        game_ball.position.second += game_ball.velocity_vector.second;
    else
        game_ball.velocity_vector.second *= -1;
 
    nextcoord = game_ball.position.first + game_ball.velocity_vector.first;
-   if( nextcoord <  FieldWidth + game_ball.diameter && nextcoord > -FieldWidth - game_ball.diameter)
+   if( nextcoord <  ScreenWidth + game_ball.diameter && nextcoord > -ScreenWidth - game_ball.diameter)
        game_ball.position.first += game_ball.velocity_vector.first;
    else
    {
+       // score!
        if(nextcoord > 0)
-           score(PLAYER_ONE, player_scores, end_score);
+           score(PLAYER_ONE, player_scores, end_score, current_screen);
        else
-           score(PLAYER_TWO, player_scores, end_score);
+           score(PLAYER_TWO, player_scores, end_score, current_screen);
        game_ball.position.first = 0;
        game_ball.position.second = 0;
-       game_ball.velocity_vector.first = 20 * turn;
+       game_ball.velocity_vector.first = 15 * turn;
        turn *= -1;  //change serving turn
    }
 
    // collisions
-   applyCollision(game_ball, player_paddles);
+   if(applyCollision(game_ball, player_paddles))
+   {
+       // volley! shrink the paddles
+       if(paddle_scale >= paddle_scalemin)
+       {
+           player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
+           player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
+           paddle_scale -= paddle_scalespeed;
+       }
+   }
 }

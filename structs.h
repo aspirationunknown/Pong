@@ -106,7 +106,7 @@ struct Menu
 };
 
 // function prototypes
-void applyCollision(Ball &ball, Paddle* paddle);
+bool applyCollision(Ball &ball, Paddle* paddle);
 void movePaddle(Paddle paddle);
 void applySpin(Ball &ball, Paddle &paddle);
 void assignColor(float value[3], const float color[3]);

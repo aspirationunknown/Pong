@@ -8,21 +8,6 @@
  #include "pong.h"
 
   /***************************************************************************//**
- * endGame
- * Authors - Derek Stotz, Charles Parsons
- *
- * Ends the game with a specified winner.
- *
- * Parameters -
-            player - the winner
- ******************************************************************************/
-void endGame(player winner)
-{
-
-
-}
-
-  /***************************************************************************//**
  * drawBall
  * Authors - Derek Stotz, Charles Parsons
  *
@@ -69,21 +54,21 @@ void drawField(int ScreenWidth, int ScreenHeight, int scores[])
     // draw a dotted white line in the middle of the screen
     glEnable( GL_LINE_STIPPLE );
     glLineStipple( 1, 0xFF00 );
-    DrawLine( 0, -ScreenHeight * 2, 0, ScreenHeight * 2, White );
+    DrawLine( 0, -ScreenHeight, 0, ScreenHeight, White );
 
     // draw the field boundaries
     glDisable( GL_LINE_STIPPLE );
-    DrawLine(-ScreenWidth *1.5, ScreenHeight *1.5, ScreenWidth *1.5, ScreenHeight *1.5, White);
-    DrawLine(-ScreenWidth *1.5, -ScreenHeight *1.5, ScreenWidth *1.5, -ScreenHeight *1.5, White);
-    DrawLine(-ScreenWidth *1.5, -ScreenHeight *1.5, -ScreenWidth *1.5, ScreenHeight *1.5, White);
-    DrawLine( ScreenWidth *1.5, -ScreenHeight *1.5, ScreenWidth *1.5, ScreenHeight *1.5, White);
+    DrawLine(-ScreenWidth, ScreenHeight, ScreenWidth, ScreenHeight, White);
+    DrawLine(-ScreenWidth, -ScreenHeight, ScreenWidth, -ScreenHeight, White);
+    DrawLine(-ScreenWidth, -ScreenHeight, -ScreenWidth, ScreenHeight, White);
+    DrawLine( ScreenWidth, -ScreenHeight, ScreenWidth, ScreenHeight, White);
 
     // draw each player's score
     float white_set[3] = {White[0], White[1], White[2]};
     if(scores[0] >= 0)
-        DrawStrokeString( std::to_string(scores[0]).c_str(), -ScreenWidth - 128, ScreenHeight + 64, white_set );
+        DrawBitmapString( std::to_string(scores[0]).c_str(), -ScreenWidth / 2, ScreenHeight - 96, white_set );
     if(scores[1] >= 0)
-        DrawStrokeString( std::to_string(scores[1]).c_str(), ScreenWidth + 128, ScreenHeight + 64, white_set );
+        DrawBitmapString( std::to_string(scores[1]).c_str(), ScreenWidth / 2, ScreenHeight - 96, white_set );
 }
 
   /***************************************************************************//**
@@ -96,32 +81,12 @@ void drawField(int ScreenWidth, int ScreenHeight, int scores[])
  * Parameters -
             player - the player to score for.
  ******************************************************************************/
-void score(player scorer, int player_scores[], int end_score)
+void score(player scorer, int player_scores[], int end_score, screen &current_screen)
 {
     player_scores[scorer]++;
     
     if( player_scores[scorer] >= end_score)
-        endGame(scorer);
-}
-
-  /***************************************************************************//**
- * display_practice
- * Authors - Derek Stotz, Charles Parsons
- *
- * Displays the practice field
- *
- * Parameters -
-            player_one_paddle - the paddle under a player's control
-            cpu_paddle - the paddle under the control of the computer
-            ball - the ball on the field
- ******************************************************************************/
-void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
-{
-    int scores[2] = {-1, -1};
-    drawField(ScreenWidth, ScreenHeight, scores);
-    drawBall(ball);
-    drawPaddle(player_one_paddle);
-    drawPaddle(cpu_paddle);
+        current_screen = WIN;
 }
 
   /***************************************************************************//**
@@ -131,8 +96,7 @@ void display_practice(Paddle &player_one_paddle, Paddle &cpu_paddle, Ball &ball,
  * Displays the game field
  *
  * Parameters -
-            player_one_score - the score to display of player one (right side)
-            player_two_score - the score to display of player two (left side)
+            scores - the score to display of players
             player_one_paddle - the paddle under player one's player's control
             ball - the ball on the field
  ******************************************************************************/
@@ -142,6 +106,27 @@ void display_game(int scores[], Paddle &player_one_paddle, Paddle &player_two_pa
     drawBall(ball);
     drawPaddle(player_one_paddle);
     drawPaddle(player_two_paddle);
+}
+
+  /***************************************************************************//**
+ * display_win
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Displays the winner of the game on top of a blank field
+ *
+ * Parameters -
+            scores - the scores to show, also determining who wins
+ ******************************************************************************/
+void display_win(int scores[], int ScreenWidth, int ScreenHeight)
+{
+    drawField(ScreenWidth, ScreenHeight, scores);
+    
+    float yellow_set[3] = { Yellow[0], Yellow[1], Yellow[2] };
+
+    if(scores[0] > scores[1])
+        DrawBitmapString( "PLAYER 1 WINS", -2*ScreenWidth/3, 0, yellow_set);
+    else
+        DrawBitmapString( "PLAYER 2 WINS", ScreenWidth/3, 0, yellow_set);
 }
 
 
@@ -160,11 +145,11 @@ void display_menu( Menu &menu, int x, int y, int spacing )
     {
         if( menu.selection_index == i )
         {
-            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, menu.selection_color );
+            DrawBitmapString( menu.options[i].c_str(), x, y + i * spacing, menu.selection_color );
         }
         else
         {
-            DrawStrokeString( menu.options[i].c_str(), x, y + i * spacing, menu.text_color );
+            DrawBitmapString( menu.options[i].c_str(), x, y + i * spacing, menu.text_color );
         }
     }
 }
@@ -174,12 +159,12 @@ void display_menu( Menu &menu, int x, int y, int spacing )
  * Utility Graphics Functions
  ******************************************************************************/
  /***************************************************************************//**
- * DrawStrokeString
+ * DrawBitmapString
  * Authors - Dr. John Weiss
  *
  * Draws a stroke string for a game menu
  ******************************************************************************/
-void DrawStrokeString( const char *string, float x, float y, float color[] )
+void DrawBitmapString( const char *string, float x, float y, float color[] )
 {
     glColor3f( color[0], color[1], color[2] );
     glRasterPos2f( x, y );
