@@ -35,19 +35,22 @@ Menu main_menu;
 Menu pause_menu;
 
 // keyboard press flags
-bool up_pressed;
-bool down_pressed;
-bool left_pressed;
-bool right_pressed;
+bool up_pressed = false;
+bool down_pressed = false;
+bool left_pressed = false;
+bool right_pressed = false;
 
-bool w_pressed;
-bool s_pressed;
-bool a_pressed;
-bool d_pressed;
+bool minus_pressed = false;
+bool plus_pressed = false;
 
-bool enter_pressed;
-bool space_pressed;
-bool shift_pressed;
+bool w_pressed = false;
+bool s_pressed = false;
+bool a_pressed = false;
+bool d_pressed = false;
+
+bool enter_pressed = false;
+bool space_pressed = false;
+bool shift_pressed = false;
 
 // splashscreen info
 const char* splashscreen_filepath = "./resources/splashscreen.bmp"; 
@@ -57,7 +60,11 @@ byte* splashscreen_image;
 
 // opening the readme
 const char* open_readme_command = "xdg-open README";
-//const char* open_readme_command = "notepad.exe README";
+const char* open_readme_command_win = "notepad.exe README";
+const char* open_readme_command_gedit = "gedit README";
+
+//shrinking the game window to view the readme
+const char* shrink_game_command = "wmctrl -a ";
 
 // screen state
 screen current_screen = MAINMENU;
@@ -81,7 +88,7 @@ double paddle_scalespeed = .01; // the amount the paddle is shrunk by every step
 int cpu_offset;
 int cpu_direction = 1; // -1 is down, 1 is up
 int cpu_offset_max; // the maximum offset.  It must be greater than the paddle height / 2
-float cpu_difficulty = 1.5; // the amount of space the cpu paddle can be off by.  1 will never miss, while increasing values are easier.
+float cpu_difficulty = 1.2; // the amount of space the cpu paddle can be off by.  1 will never miss, while increasing values are easier.
 
 // function prototypes
 void initOpenGL( void );
@@ -92,12 +99,12 @@ void practiceSetup( void );
 void gameSetup( void );
 void display( void );
 void step( int value);
-void display_splashscreen( void );
 void reshape( int w, int h );
 void keyboard_up( unsigned char key, int x, int y );
 void keyboard_down( unsigned char key, int x, int y );
 void special_up( int key, int x, int y );
 void special_down( int key, int x, int y );
+void ballSpeedupCheck( void );
 
 // step functions
 void menu_step(Menu &menu);
@@ -164,6 +171,15 @@ void initOpenGL( void )
 }
 
 
+ /***************************************************************************//**
+ * step
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Does a step in the game, handled differently depending on which screen is active
+ * 
+ * Parameters - 
+    value - an unused integer passed by glutTimerFunc
+ ******************************************************************************/
 void step ( int value )
 {
     switch( current_screen )
@@ -204,6 +220,13 @@ void step ( int value )
  * Authors - Dr. John Weiss
  *
  * Displays an image through the glDrawPixels method
+ *
+ * Parameters - 
+    x - the x position to draw the image at
+    y - the y position to draw the image at
+    w - the width to draw the image
+    h - the height to draw the image
+    image - a byte array holidng image information
  ******************************************************************************/
 void displayImage( int x, int y, int w, int h, byte *image )
 {
@@ -223,7 +246,8 @@ void display( void )
     switch( current_screen )
     {
         case MAINMENU:
-            display_splashscreen();
+            //display the spashscreen
+            displayImage(-1 * ScreenWidth, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
             display_menu(main_menu, 0, 0, 96);
             break;
         case PRACTICE:
@@ -247,21 +271,14 @@ void display( void )
 }
 
  /***************************************************************************//**
- * display_splashscreen
- * Authors - Derek Stotz, Charles Parsons
- *
- * The display function for the splashscreen screen, called in the display function
- ******************************************************************************/
-void display_splashscreen()
-{
-    displayImage(-1 * ScreenWidth, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
-}
-
- /***************************************************************************//**
  * reshape
  * Authors - Dr. John Weiss
  *
  * The callback function which reshapes the window
+ *
+ * Parameters -
+    w - the width of the screen
+    h - the height of the screen
  ******************************************************************************/
 void reshape( int w, int h )
 {
@@ -282,6 +299,7 @@ void reshape( int w, int h )
  /***************************************************************************//**
  * Pause Menu Functions
  ******************************************************************************/
+
 /***************************************************************************//**
  * pauseMenu_mainMenu
  * Authors - Derek Stotz, Charles Parsons
@@ -352,22 +370,13 @@ void mainMenu_practice( void )
  * mainMenu_newGame
  * Authors - Derek Stotz, Charles Parsons
  *
- * Opens the readme
+ * Opens the readme in gedit (or the default editor, or notepad if in windows)
  ******************************************************************************/
 void mainMenu_about( void )
 {
-    system(open_readme_command);
-}
-
- /***************************************************************************//**
- * mainMenu_newGame
- * Authors - Derek Stotz, Charles Parsons
- *
- * Exits the application
- ******************************************************************************/
-void mainMenu_exit( void )
-{
-    glutLeaveMainLoop();
+    if(system(open_readme_command_gedit) != 0)
+        if( system(open_readme_command) != 0)
+            system(open_readme_command_win );  // well, if the default linux editor fails to launch, we're probably in windows.
 }
 
  /***************************************************************************//**
@@ -383,7 +392,7 @@ void mainMenuSetup()
     main_menu.options[2] = "Practice";
     main_menu.options[3] = "New Game";
 
-    main_menu.option_actions[0] = mainMenu_exit;
+    main_menu.option_actions[0] = glutLeaveMainLoop;
     main_menu.option_actions[1] = mainMenu_about;
     main_menu.option_actions[2] = mainMenu_practice;
     main_menu.option_actions[3] = mainMenu_newGame;
@@ -400,7 +409,7 @@ void mainMenuSetup()
  * pauseMenuSetup
  * Authors - Derek Stotz, Charles Parsons
  *
- * Sets up the Main Menu properties and callback functions
+ * Sets up the Pause Menu properties and callback functions
  ******************************************************************************/
 void pauseMenuSetup()
 {
@@ -409,7 +418,7 @@ void pauseMenuSetup()
     pause_menu.options[2] = "Restart";
     pause_menu.options[3] = "Resume";
 
-    pause_menu.option_actions[0] = mainMenu_exit;
+    pause_menu.option_actions[0] = glutLeaveMainLoop;
     pause_menu.option_actions[1] = pauseMenu_mainMenu;
     pause_menu.option_actions[2] = pauseMenu_restart;
     pause_menu.option_actions[3] = pauseMenu_resume;
@@ -441,7 +450,7 @@ void gameSetup()
     game_ball.position.second = 0;
     game_ball.diameter = 16;
     game_ball.velocity_vector.first = 15 * turn;
-    turn *= -1;  //change serving turn
+    turn *= -1;  // change serving turn
     assignColor(game_ball.color, White);
     
     player_paddles[0].dimensions.first = 20;
@@ -486,12 +495,11 @@ void keyboard_down( unsigned char key, int x, int y )
     switch( key )
     {
         case '-':
-            if( fps > 5 )
-                fps -= 5;
+            minus_pressed = true;
             break;
         case '=':
         case '+':
-            fps += 5;
+            plus_pressed =  true;
             break;
         case 'w':
             w_pressed = true;
@@ -528,6 +536,13 @@ void keyboard_up( unsigned char key, int x, int y )
 {
     switch( key )
     {
+        case '-':
+            minus_pressed = false;
+            break;
+        case '+':
+        case '=':
+            plus_pressed = false;
+            break;
         case 'w':
             w_pressed = false;
             break;
@@ -605,7 +620,7 @@ void special_up( int key, int x, int y )
 
  /***************************************************************************//**
  * Menu Step
- * Authors - Dr. John Weiss
+ * Authors - Derek Stotz, Charles Parsons
  *
  * Does a step in a given menu, moves the selector and fires the callback
         functions if necessary
@@ -642,7 +657,7 @@ void menu_step(Menu &menu)
 
  /***************************************************************************//**
  * practice_step
- * Authors - Dr. John Weiss
+ * Authors - Derek Stotz, Charles Parsons
  *
  * Does a step in the practice game, telling what parts of the game's state
         need to change.
@@ -746,20 +761,23 @@ void practice_step()
 
  /***************************************************************************//**
  * Game Step
- * Authors - Dr. John Weiss
+ * Authors - Derek Stotz, Charles Parsons
  *
  * Does a step in the main game, telling what parts of the game's state
         need to change.
  ******************************************************************************/
 void game_step()
 {
-   //check for pause
+   // check for pause
    if( space_pressed )
    {
        resume_screen = GAME;
        current_screen = PAUSE;
        space_pressed = false;
    }
+
+   // check for ball speedup/slowdown
+   ballSpeedupCheck();
 
    // horizontal movement player 1
    if( a_pressed && d_pressed )
@@ -858,5 +876,47 @@ void game_step()
            player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
            paddle_scale -= paddle_scalespeed;
        }
+   }
+}
+
+
+ /***************************************************************************//**
+ * ballSpeedupCheck
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Does a step in the main game, telling what parts of the game's state
+        need to change.
+ ******************************************************************************/
+void ballSpeedupCheck()
+{
+   // check for ball speedup/slowdown
+   // this could be greatly compressed, but then it would not be as clear
+   if(plus_pressed)
+   {
+       if(game_ball.velocity_vector.first > 0)
+           game_ball.velocity_vector.first += 1;
+       else if (game_ball.velocity_vector.first < 0)
+           game_ball.velocity_vector.first -= 1;
+
+       if(game_ball.velocity_vector.second > 0)
+           game_ball.velocity_vector.second += 1;
+       else if (game_ball.velocity_vector.second < 0)
+           game_ball.velocity_vector.second -= 1;
+
+       plus_pressed = false;
+   }
+   if(minus_pressed)
+   {
+       if(game_ball.velocity_vector.first > 0)
+           game_ball.velocity_vector.first -= 1;
+       else if (game_ball.velocity_vector.first < 0)
+           game_ball.velocity_vector.first += 1;
+
+       if(game_ball.velocity_vector.second > 0)
+           game_ball.velocity_vector.second -= 1;
+       else if (game_ball.velocity_vector.second < 0)
+           game_ball.velocity_vector.second += 1;
+
+       minus_pressed = false;
    }
 }
