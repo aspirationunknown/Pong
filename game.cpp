@@ -81,7 +81,7 @@ int end_score = 10;    // the score at which a player wins the game
 int fps = 60;
 int turn = 1; // 1 is serve right, -1 is serve left
 
-int full_paddlesize = 120; // the starting size of the paddle
+int full_paddlesize = 150; // the starting size of the paddle
 double paddle_scale = 1.0; // for shrinking the paddle over time
 double paddle_scalemin = .20; // the smallest possible paddle size multiplier
 double paddle_scalespeed = .01; // the amount the paddle is shrunk by every step
@@ -112,6 +112,7 @@ void ballSpeedupCheck( void );
 void menu_step(Menu &menu);
 void practice_step();
 void game_step();
+void shared_step();
 
 // functions by Dr. Weiss, for loading and displaying bmp files
 bool LoadBmpFile( const char* filename, int &NumRows, int &NumCols, unsigned char* &ImagePtr );
@@ -480,6 +481,7 @@ void gameSetup()
     player_scores[0] = 0;
     player_scores[1] = 0;
 
+    game_ball.max_velocity = 30;
     game_ball.position.first = 0;
     game_ball.position.second = 0;
     game_ball.diameter = 16;
@@ -489,16 +491,16 @@ void gameSetup()
     
     player_paddles[0].dimensions.first = 20;
     player_paddles[0].dimensions.second = full_paddlesize;
-    player_paddles[0].movement_speed.first = 7;
-    player_paddles[0].movement_speed.second = 12;
+    player_paddles[0].movement_speed.first = 10;
+    player_paddles[0].movement_speed.second = 15;
     player_paddles[0].position.first = -ScreenWidth + player_paddles[0].dimensions.first;
     player_paddles[0].position.second = 0 - player_paddles[0].dimensions.second/2;
     assignColor(player_paddles[0].color, White);
 
     player_paddles[1].dimensions.first = 20;
     player_paddles[1].dimensions.second = full_paddlesize;
-    player_paddles[1].movement_speed.first = 7;
-    player_paddles[1].movement_speed.second = 12;
+    player_paddles[1].movement_speed.first = 10;
+    player_paddles[1].movement_speed.second = 15;
     player_paddles[1].position.first = ScreenWidth - player_paddles[1].dimensions.first;
     player_paddles[1].position.second = 0 - player_paddles[1].dimensions.second/2;
     assignColor(player_paddles[1].color, White);
@@ -706,10 +708,83 @@ void menu_step(Menu &menu)
  ******************************************************************************/
 void practice_step()
 {
+   shared_step();
+
+   // move the cpu paddle
+   player_paddles[1].position.second = game_ball.position.second - player_paddles[1].dimensions.second / 2 + cpu_offset;
+
+   // change the CPU's paddle offset
+
+   // change direction if the max will be reached
+   if (abs(cpu_offset + cpu_direction) > cpu_offset_max)
+       cpu_direction *= -1;
+   cpu_offset += cpu_direction;
+   player_paddles[1].velocity_vector.second = player_paddles[1].movement_speed.second * cpu_direction;
+
+   // make sure the cpu paddle is not past the bounds
+   int nextcoord = player_paddles[1].position.second;
+
+   if( nextcoord >  ScreenHeight - player_paddles[1].dimensions.second)
+       player_paddles[1].position.second = ScreenHeight- player_paddles[1].dimensions.second;
+   else if(nextcoord < -ScreenHeight)
+       player_paddles[1].position.second = -ScreenHeight;
+}
+
+ /***************************************************************************//**
+ * Game Step
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Does a step in the main game, telling what parts of the game's state
+        need to change.
+ ******************************************************************************/
+void game_step()
+{
+   shared_step();
+
+   // horizontal movement player 2
+   if( left_pressed && right_pressed )
+        player_paddles[1].velocity_vector.first = 0;
+   else if( left_pressed )
+        player_paddles[1].velocity_vector.first = -1 * player_paddles[1].movement_speed.first;
+   else if( right_pressed )
+        player_paddles[1].velocity_vector.first = player_paddles[1].movement_speed.first;
+   else
+        player_paddles[1].velocity_vector.first /= 1.2;
+
+   // vertical movement player 2
+   if( down_pressed && up_pressed )
+        player_paddles[1].velocity_vector.second = 0;
+   else if( down_pressed )
+        player_paddles[1].velocity_vector.second = -1 * player_paddles[1].movement_speed.second;
+   else if( up_pressed )
+        player_paddles[1].velocity_vector.second = player_paddles[1].movement_speed.second;
+   else
+        player_paddles[1].velocity_vector.second /= 1.2;
+
+   // apply velocity for player 2
+   int nextcoord = player_paddles[1].position.first + player_paddles[1].velocity_vector.first;
+   if( nextcoord <  ScreenWidth - player_paddles[1].dimensions.first && nextcoord > 16)
+       player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
+
+   nextcoord = player_paddles[1].position.second + player_paddles[1].velocity_vector.second;
+   if( nextcoord <  ScreenHeight - player_paddles[1].dimensions.second && nextcoord > -ScreenHeight)
+       player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
+}
+
+
+ /***************************************************************************//**
+ * Shared Step
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Does a step in the game environment, telling what parts of the game's state
+        need to change.  Used by the main game and the 
+ ******************************************************************************/
+void shared_step()
+{
   // check for game pause
   if( space_pressed )
   {
-      resume_screen = PRACTICE;
+      resume_screen = current_screen;
       current_screen = PAUSE;
       space_pressed = false;
   }
@@ -769,158 +844,25 @@ void practice_step()
        player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
        player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
    }
-  
-   // move the cpu paddle
-   player_paddles[1].position.second = game_ball.position.second - player_paddles[1].dimensions.second / 2 + cpu_offset;
 
-   // change the CPU's paddle offset
-
-   // change direction if the max will be reached
-   if (abs(cpu_offset + cpu_direction) > cpu_offset_max)
-       cpu_direction *= -1;
-   cpu_offset += cpu_direction;
-
-   // make sure the cpu paddle is not past the bounds
-   nextcoord = player_paddles[1].position.second;
-
-   if( nextcoord >  ScreenHeight - player_paddles[1].dimensions.second)
-       player_paddles[1].position.second = ScreenHeight- player_paddles[1].dimensions.second;
-   else if(nextcoord < -ScreenHeight)
-       player_paddles[1].position.second = -ScreenHeight;
+   // apply relevant ball speedups
+   ballSpeedupCheck();
 
    // apply collisions
    if(applyCollision(game_ball, player_paddles))
    {
        // shrink the paddles
-       if(paddle_scale >= paddle_scalemin)
+       if(paddle_scale >= paddle_scalemin && abs(game_ball.velocity_vector.first) > 7)
        {
            player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
            player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
            paddle_scale -= paddle_scalespeed;
-       }
-   }
-}
-
- /***************************************************************************//**
- * Game Step
- * Authors - Derek Stotz, Charles Parsons
- *
- * Does a step in the main game, telling what parts of the game's state
-        need to change.
- ******************************************************************************/
-void game_step()
-{
-   // check for pause
-   if( space_pressed )
-   {
-       resume_screen = GAME;
-       current_screen = PAUSE;
-       space_pressed = false;
-   }
-
-   // check for ball speedup/slowdown
-   ballSpeedupCheck();
-
-   // horizontal movement player 1
-   if( a_pressed && d_pressed )
-        player_paddles[0].velocity_vector.first = 0;
-   else if( a_pressed )
-        player_paddles[0].velocity_vector.first = -1 * player_paddles[0].movement_speed.first;
-   else if( d_pressed )
-        player_paddles[0].velocity_vector.first = player_paddles[0].movement_speed.first;
-   else
-        player_paddles[0].velocity_vector.first /= 1.2;
-
-   // vertical movement player 1
-   if( s_pressed && w_pressed )
-        player_paddles[0].velocity_vector.second = 0;
-   else if( s_pressed )
-        player_paddles[0].velocity_vector.second = -1 * player_paddles[0].movement_speed.second;
-   else if( w_pressed )
-        player_paddles[0].velocity_vector.second = player_paddles[0].movement_speed.second;
-   else
-        player_paddles[0].velocity_vector.second /= 1.2;
-
-   // horizontal movement player 2
-   if( left_pressed && right_pressed )
-        player_paddles[1].velocity_vector.first = 0;
-   else if( left_pressed )
-        player_paddles[1].velocity_vector.first = -1 * player_paddles[1].movement_speed.first;
-   else if( right_pressed )
-        player_paddles[1].velocity_vector.first = player_paddles[1].movement_speed.first;
-   else
-        player_paddles[1].velocity_vector.first /= 1.2;
-
-   // vertical movement player 2
-   if( down_pressed && up_pressed )
-        player_paddles[1].velocity_vector.second = 0;
-   else if( down_pressed )
-        player_paddles[1].velocity_vector.second = -1 * player_paddles[1].movement_speed.second;
-   else if( up_pressed )
-        player_paddles[1].velocity_vector.second = player_paddles[1].movement_speed.second;
-   else
-        player_paddles[1].velocity_vector.second /= 1.2;
-
-   // apply velocity
-   
-   int nextcoord = player_paddles[0].position.first + player_paddles[0].velocity_vector.first;
-   if( nextcoord <  -player_paddles[0].dimensions.first - 16 && nextcoord > -ScreenWidth)
-       player_paddles[0].position.first += player_paddles[0].velocity_vector.first;
-
-   nextcoord = player_paddles[1].position.first + player_paddles[1].velocity_vector.first;
-   if( nextcoord <  ScreenWidth - player_paddles[1].dimensions.first && nextcoord > 16)
-       player_paddles[1].position.first += player_paddles[1].velocity_vector.first;
-
-   nextcoord = player_paddles[0].position.second + player_paddles[0].velocity_vector.second;
-   if( nextcoord <  ScreenHeight - player_paddles[0].dimensions.second && nextcoord > -ScreenHeight)
-       player_paddles[0].position.second += player_paddles[0].velocity_vector.second;
-
-   nextcoord = player_paddles[1].position.second + player_paddles[1].velocity_vector.second;
-   if( nextcoord <  ScreenHeight - player_paddles[1].dimensions.second && nextcoord > -ScreenHeight)
-       player_paddles[1].position.second += player_paddles[1].velocity_vector.second;
   
-   // ball velocity
-
-   nextcoord = game_ball.position.second + game_ball.velocity_vector.second;
-   if( nextcoord <  ScreenHeight && nextcoord > -ScreenHeight)
-       game_ball.position.second += game_ball.velocity_vector.second;
-   else
-       game_ball.velocity_vector.second *= -1;
-
-   nextcoord = game_ball.position.first + game_ball.velocity_vector.first;
-   if( nextcoord <  ScreenWidth + game_ball.diameter && nextcoord > -ScreenWidth - game_ball.diameter)
-       game_ball.position.first += game_ball.velocity_vector.first;
-   else
-   {
-       // score!
-       if(nextcoord > 0)
-           score(PLAYER_ONE, player_scores, end_score, current_screen);
-       else
-           score(PLAYER_TWO, player_scores, end_score, current_screen);
-       game_ball.position.first = 0;
-       game_ball.position.second = 0;
-       game_ball.velocity_vector.first = 15 * turn;
-       turn *= -1;  //change serving turn
-       
-       // reset the paddle size
-       paddle_scale = 1.0;
-       player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
-       player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
-   }
-
-   // collisions
-   if(applyCollision(game_ball, player_paddles))
-   {
-       // volley! shrink the paddles
-       if(paddle_scale >= paddle_scalemin)
-       {
-           player_paddles[0].dimensions.second = full_paddlesize * paddle_scale;
-           player_paddles[1].dimensions.second = full_paddlesize * paddle_scale;
-           paddle_scale -= paddle_scalespeed;
+           player_paddles[0].position.second += 1;
+           player_paddles[1].position.second += 1;
        }
    }
 }
-
 
  /***************************************************************************//**
  * ballSpeedupCheck
