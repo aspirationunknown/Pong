@@ -206,18 +206,16 @@ void applySpin(Ball &ball, Paddle &paddle)
 {
 
     int spin = 0; //1 = top, -1 = bottom, 0 = middle
-
+    ball.max_velocity = 35;
     //if ball hits top third of paddle make y velocity positive.
     if(ball.position.second >= paddle.position.second +
        (paddle.dimensions.second * 2.0 / 3.0))
     {
-        std::cout << "spin = 1" << std::endl;
         spin = 1;
     } 
     //if ball hits bottom third of paddle make y velocity negative.
     else if(ball.position.second <= paddle.position.second + (paddle.dimensions.second / 3.0))
     {
-        std::cout << "spin = -1" << std::endl;
         spin = -1;
     }
     ///if ball hits middle third of paddle do not change y velocity.
