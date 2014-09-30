@@ -20,10 +20,10 @@ GL_LIBS = -lglut -lGLU -lGL -lm
 
 #-----------------------------------------------------------------------
 
-OBJS = game.o pong.o structs.o bmpRead.o
+OBJS = pong.o pongGraphics.o structs.o bmpRead.o
 
 
-pong: game.o pong.o structs.o bmpRead.o 
+pong: pong.o pongGraphics.o structs.o bmpRead.o 
 
 	g++ ${OBJS} ${CXXFLAGS} -o pong ${GL_LIBS}
 
@@ -33,17 +33,17 @@ bmpRead.o: bmpRead.cpp
 	g++ ${CXXFLAGS} -c bmpRead.cpp ${GL_LIBS}
 
 
-game.o: game.cpp pong.h bmpRead.o
-
-	g++ ${CXXFLAGS} -c game.cpp ${GL_LIBS}
-
-
-pong.o: pong.cpp pong.h
+pong.o: pong.cpp pongGraphics.h bmpRead.o
 
 	g++ ${CXXFLAGS} -c pong.cpp ${GL_LIBS}
 
 
-structs.o: structs.cpp pong.h
+pongGraphics.o: pongGraphics.cpp pongGraphics.h
+
+	g++ ${CXXFLAGS} -c pongGraphics.cpp ${GL_LIBS}
+
+
+structs.o: structs.cpp structs.h
 
 	g++ ${CXXFLAGS} -c structs.cpp ${GL_LIBS}
 

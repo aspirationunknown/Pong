@@ -1,11 +1,10 @@
  /***************************************************************************//**
- * pong.cpp
+ * pongGraphics.cpp
  * Authors - Derek Stotz, Charles Parsons
  *
- * This file contains functionality for the pong game and drawing the structs
-    from structs.h.
+ * This file contains drawing functionaliy for the pong game.
  ******************************************************************************/
- #include "pong.h"
+ #include "pongGraphics.h"
 
   /***************************************************************************//**
  * drawBall
