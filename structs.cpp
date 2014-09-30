@@ -208,7 +208,7 @@ void applySpin(Ball &ball, Paddle &paddle)
 {
     int moving = 0; // 1 = up, -1 = down, 0 = not moving
     int spin = 0; //1 = top, -1 = bottom, 0 = middle
-    ball.max_velocity = 25;
+
     //if paddle is moving up increase y velocity of ball.
     if(paddle.velocity_vector.second > 0)
     {
