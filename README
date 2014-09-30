@@ -1,2 +1,34 @@
 Pong
 ====
+Authors: Derek Stotz & Charles Parsons
+
+Mode: New Game (Regular 2-Player Gameplay)
+
+Player 1 controls: 'w' = up
+                   'a' = left
+                   's' = down
+                   'd' = right
+
+Player 2 controls: 'up-arrow' = up
+                   'left-arrow' = left
+                   'down-arrow' = down
+                   'right-arrow' = right
+
+Other controls:    'spacebar' = pause, menu select
+                   'escape' = quit
+                   '+' = increase ball speed
+                   '-' = decrease ball speed
+
+Serves alternate. First player whose score reaches 10 wins.
+
+Mode: Practice
+Difficulty Levels: Easy, Medium, Hard
+
+Player controls:   'w' = up
+                   'a' = left
+                   's' = down
+                   'd' = right
+
+In this mode the left-hand side is player controlled and the right-hand side is computer controlled.
+The different difficulty levels determine how much spin the computer is able to put on the ball and
+how well it is able to follow the ball. The practice match ends when either player's score reaches 10.
