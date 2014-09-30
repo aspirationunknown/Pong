@@ -15,8 +15,8 @@
  *
  *
  * Usage - 
-            To Compile: make pong
-            Usage: pong
+            To Compile: make
+            Usage: ./pong
             
  * Details -
             This application contains a two-player pong game.
@@ -33,6 +33,7 @@ using namespace std;
 
 Menu main_menu;
 Menu pause_menu;
+Menu practice_menu;
 
 // keyboard press flags
 bool up_pressed = false;
@@ -94,6 +95,7 @@ float cpu_difficulty = 1.2; // the amount of space the cpu paddle can be off by.
 void initOpenGL( void );
 void mainMenuSetup( void );
 void pauseMenuSetup( void );
+void practiceMenuSetup( void );
 void pauseMenu_resume( void );
 void practiceSetup( void );
 void gameSetup( void );
@@ -187,6 +189,9 @@ void step ( int value )
         case MAINMENU:
             menu_step( main_menu );
             break;
+        case PRACTICEMENU:
+            menu_step( practice_menu );
+            break;
         case PRACTICE:
             practice_step();
             break;
@@ -245,6 +250,11 @@ void display( void )
     glClear( GL_COLOR_BUFFER_BIT );
     switch( current_screen )
     {
+        case PRACTICEMENU:
+            //display the spashscreen
+            displayImage(-1 * ScreenWidth, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
+            display_menu(practice_menu, 0, 0, 96);
+            break;
         case MAINMENU:
             //display the spashscreen
             displayImage(-1 * ScreenWidth, 0, splashscreen_cols, splashscreen_rows, splashscreen_image );
@@ -361,9 +371,9 @@ void mainMenu_newGame( void )
 void mainMenu_practice( void )
 {
     gameSetup();
-    practiceSetup();
     pauseMenuSetup();
-    current_screen = PRACTICE;
+    practiceMenuSetup();
+    current_screen = PRACTICEMENU;
 }
 
  /***************************************************************************//**
@@ -403,6 +413,30 @@ void mainMenuSetup()
 
     main_menu.selection_index = 3;
     main_menu.n = 4;
+}
+
+ /***************************************************************************//**
+ * practiceMenuSetup
+ * Authors - Derek Stotz, Charles Parsons
+ *
+ * Sets up the Main Menu properties and callback functions
+ ******************************************************************************/
+void practiceMenuSetup()
+{
+    practice_menu.options[0] = "Hard";
+    practice_menu.options[1] = "Medium";
+    practice_menu.options[2] = "Easy";
+
+    practice_menu.option_actions[0] = [] () { cpu_difficulty = 1.2; practiceSetup(); current_screen = PRACTICE; };
+    practice_menu.option_actions[1] = [] () { cpu_difficulty = 1.6; practiceSetup(); current_screen = PRACTICE; };
+    practice_menu.option_actions[2] = [] () { cpu_difficulty = 2.0; practiceSetup(); current_screen = PRACTICE; };
+
+    assignColor(practice_menu.background_color, Black);
+    assignColor(practice_menu.text_color, White);
+    assignColor(practice_menu.selection_color, Yellow);
+
+    practice_menu.selection_index = 2;
+    practice_menu.n = 3;
 }
 
  /***************************************************************************//**
@@ -502,15 +536,19 @@ void keyboard_down( unsigned char key, int x, int y )
             plus_pressed =  true;
             break;
         case 'w':
+        case 'W':
             w_pressed = true;
             break;
         case 's':
+        case 'S':
             s_pressed = true;
             break;
         case 'a':
+        case 'A':
             a_pressed = true;
             break;
         case 'd':
+        case 'D':
             d_pressed = true;
             break;
         case 13:
@@ -544,15 +582,19 @@ void keyboard_up( unsigned char key, int x, int y )
             plus_pressed = false;
             break;
         case 'w':
+        case 'W':
             w_pressed = false;
             break;
         case 's':
+        case 'S':
             s_pressed = false;
             break;
         case 'a':
+        case 'A':
             a_pressed = false;
             break;
         case 'd':
+        case 'D':
             d_pressed = false;
             break;
         case '\n':

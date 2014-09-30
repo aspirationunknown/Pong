@@ -6,7 +6,7 @@
 const int EscapeKey = 27;
 
 // screens
-enum screen {MAINMENU, PRACTICE, GAME, PAUSE, WIN};
+enum screen {MAINMENU, PRACTICE, GAME, PAUSE, WIN, PRACTICEMENU};
 
 // function prototypes
 void drawBall(Ball* ball);
