@@ -16,8 +16,6 @@
 ******************************************************************************/
 bool applyCollision(Ball &ball, Paddle paddle[2])
 {   
-    int paddle_next_location; //where the paddle will be in the next step
-    int ball_next_location; //where the ball will be in the next step
     int ball_bounding_box[4] = {0}; //stored as left-x, top-y, right-x, bottom-y
     int paddle_bounding_box[2][4] = {0}; //stored as left-x, top-y, right-x, bottom-y
                                          //row zero is player one and row 1 is player 2
@@ -206,35 +204,20 @@ void movePaddle(Paddle paddle, player mover)
  ******************************************************************************/
 void applySpin(Ball &ball, Paddle &paddle)
 {
-    int moving = 0; // 1 = up, -1 = down, 0 = not moving
+
     int spin = 0; //1 = top, -1 = bottom, 0 = middle
 
-    //if paddle is moving up increase y velocity of ball.
-    if(paddle.velocity_vector.second > 0)
-    {
-        moving = 1;
-    }
-    //if paddle is moving down increase -y velocity of ball.
-    else if(paddle.velocity_vector.second < 0)
-    {
-        moving = -1;
-    }
-    //if paddle is moving toward ball increase -x velocity of ball.
-    else
-    {
-        moving = 0;
-    }
-    
     //if ball hits top third of paddle make y velocity positive.
-    if(ball.position.second > paddle.position.second * 1.1 -
-       paddle.position.second * 1.1 / 3.0)
+    if(ball.position.second >= paddle.position.second +
+       (paddle.dimensions.second * 2.0 / 3.0))
     {
+        std::cout << "spin = 1" << std::endl;
         spin = 1;
     } 
     //if ball hits bottom third of paddle make y velocity negative.
-    else if(ball.position.second < paddle.position.second * 1.1 -
-            paddle.position.second * 1.1 * 2 / 3.0)
+    else if(ball.position.second <= paddle.position.second + (paddle.dimensions.second / 3.0))
     {
+        std::cout << "spin = -1" << std::endl;
         spin = -1;
     }
     ///if ball hits middle third of paddle do not change y velocity.
@@ -242,17 +225,13 @@ void applySpin(Ball &ball, Paddle &paddle)
     {
         spin = 0;
     }
-    std::cout << "ball velocity: " << ball.velocity_vector.first << ", " << ball.velocity_vector.second << std::endl;
-    //formula for new ball velocity:
-    //x_bvelocity = (xbvelocity > 0) ? -(x_bvelocity + x_pvelocity): -x_bvelocity + x_pvelocity
-    //                                  
-    //y bvelocity = 
-    ball.velocity_vector.first += paddle.velocity_vector.first;
+
+    ball.velocity_vector.first += 0.5 * paddle.velocity_vector.first;
     if(ball.velocity_vector.first > ball.max_velocity)
     {
         ball.velocity_vector.first = ball.max_velocity;
     }
-    ball.velocity_vector.second = 0;
+    ball.velocity_vector.second += spin * 10 + 0.2 * paddle.velocity_vector.second;
     if(ball.velocity_vector.second > ball.max_velocity)
     {
         ball.velocity_vector.second = ball.max_velocity;
