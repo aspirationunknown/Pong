@@ -44,6 +44,11 @@ void drawPaddle(Paddle &paddle)
  * Authors - Derek Stotz, Charles Parsons
  *
  * Draws the playing field, including the centre line and scores
+ *
+ * Parameters - 
+    ScreenWidth - the width of the window
+    ScreenHeight - the height of the window
+    scores - the two scores, of player one and player two
  ******************************************************************************/
 void drawField(int ScreenWidth, int ScreenHeight, int scores[])
 {
@@ -78,7 +83,10 @@ void drawField(int ScreenWidth, int ScreenHeight, int scores[])
     end the game with the given player as the winner.
  *
  * Parameters -
-            player - the player to score for.
+    player - the player to score for.
+    player_scores - the player scores, for comparison
+    end_score - the score to end the game at
+    current_screen - the current screen, so the screen can be switched to win
  ******************************************************************************/
 void score(player scorer, int player_scores[], int end_score, screen &current_screen)
 {
@@ -95,9 +103,12 @@ void score(player scorer, int player_scores[], int end_score, screen &current_sc
  * Displays the game field
  *
  * Parameters -
-            scores - the score to display of players
-            player_one_paddle - the paddle under player one's player's control
-            ball - the ball on the field
+    scores - the score to display of players
+    player_one_paddle - the paddle under player one's player's control
+    player_two_paddle - the paddle under player two's player's control
+    ball - the ball on the field
+    ScreenWidth - the width of the current play field
+    ScreenHeight - the height of the current play field
  ******************************************************************************/
 void display_game(int scores[], Paddle &player_one_paddle, Paddle &player_two_paddle, Ball &ball, int ScreenWidth, int ScreenHeight)
 {
@@ -114,7 +125,9 @@ void display_game(int scores[], Paddle &player_one_paddle, Paddle &player_two_pa
  * Displays the winner of the game on top of a blank field
  *
  * Parameters -
-            scores - the scores to show, also determining who wins
+    scores - the scores to show, also determining who wins
+    ScreenWidth - the width of the playing field
+    ScreenHeight - the height of the playing field
  ******************************************************************************/
 void display_win(int scores[], int ScreenWidth, int ScreenHeight)
 {
@@ -136,7 +149,10 @@ void display_win(int scores[], int ScreenWidth, int ScreenHeight)
  * Displays a full menu, including the selected option
  *
  * Parameters
-            menu - the menu to display
+    menu - the menu to display
+    x - the x to display the menu at
+    y - the y to display the menu at
+    spacing - the distance between menu items
  ******************************************************************************/
 void display_menu( Menu &menu, int x, int y, int spacing )
 {
@@ -162,6 +178,11 @@ void display_menu( Menu &menu, int x, int y, int spacing )
  * Authors - Dr. John Weiss
  *
  * Draws a stroke string for a game menu
+ * Parameters -
+    string - the string to draw
+    x - the x location to draw the string on the screen
+    y - the y location to draw the string on the screen
+    color -the color the draw the string, stored in a 3-element array
  ******************************************************************************/
 void DrawBitmapString( const char *string, float x, float y, float color[] )
 {
@@ -176,6 +197,12 @@ void DrawBitmapString( const char *string, float x, float y, float color[] )
  * Authors - Dr. John Weiss
  *
  * Draws a line
+ * Parameters -
+    x1 - the x of the first endpoint
+    y1 - the y of the first endpoint
+    x2 - the x of the second endpoint
+    y2 - the y of the second endpoint
+    color - the color to draw the line in, stored in a 3-element array
  ******************************************************************************/
 void DrawLine( float x1, float y1, float x2, float y2, const float color[] )
 {
@@ -197,7 +224,7 @@ void DrawLine( float x1, float y1, float x2, float y2, const float color[] )
     y - the y of the center of the circle
     xRadius - the radius of the circle on the x axis
     yRadius - the radius of the circle on the y axis
-    color - the color to draw the circle
+    color - the color to draw the circle, stored in a 3-element array
  ******************************************************************************/
 void DrawFilledEllipse( float x, float y, float xRadius, float yRadius, float color[] )
 {
@@ -222,7 +249,7 @@ void DrawFilledEllipse( float x, float y, float xRadius, float yRadius, float co
     y1 - the y1 of the rectangle
     x2 - the x2 of the rectangle
     y2 - the y2 of thoe rectangle
-    color - the color to draw the rectangle
+    color - the color to draw the rectangle, stored in a 3-element array
  ******************************************************************************/
 void DrawFilledRectangle( float x1, float y1, float x2, float y2, float color[] )
 {
