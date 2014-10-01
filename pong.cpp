@@ -31,13 +31,90 @@
             On "About", the readme is opened in a text editor, and on "Exit"
             the game quits.
 
-            
-            
+            Controls:
+            Authors: Derek Stotz & Charles Parsons
+
+            Mode: New Game (Regular 2-Player Gameplay)
+
+            Player 1 controls: 'w' = up
+                               'a' = left
+                               's' = down
+                               'd' = right
+
+            Player 2 controls: 'up-arrow' = up
+                               'left-arrow' = left
+                               'down-arrow' = down
+                               'right-arrow' = right
+
+            Other controls:    'spacebar' = pause, menu select
+                               'escape' = quit
+                               '+' = increase ball speed
+                               '-' = decrease ball speed
+
+            Serves alternate. First player whose score reaches 10 wins.
+
+            Mode: Practice
+            Difficulty Levels: Easy, Medium, Hard
+
+            Player controls:   'w' = up
+                               'a' = left
+                               's' = down
+                               'd' = right
+
+            In this mode the left-hand side is player controlled and the right-hand side is computer controlled.
+            The different difficulty levels determine how much spin the computer is able to put on the ball and
+            how well it is able to follow the ball. The practice match ends when either player's score reaches 10.
+                        
  * Details -  
+            The structure of pong is mostly determined by screens, menus, balls and paddles.
             
+            Screens are an enum which determine which step and draw functions are called.
+            Simply switching the current screen value is enough to immediately pause the
+            current screen and switch over to a different one.
+
+            Menus are structs of strings and function pointers.  The main and pause menus
+            use pointers to prototyped functions, while the more simple difficulty menu
+            uses lambda functions.  These menus are set up as soon as they are needed.
+
+            The ball is a struct which stores information on its state in the game's space,
+            its velocity and other relevant information required for it to interact with the
+            paddles on the playing field.  There is only one ball, although that could be
+            extended in the future.
+
+            The paddle struct stores information not only for drawing paddles, but for determining
+            their bounding boxes, used in collision detection with the balls.  There are only two
+            paddles, but that could change in the future.
+
+            The balls, paddles, scores and other relevant information for the main game is defined
+            in the gameSetup function.
+
+            An alternate game mode, practice, was created so a single player could play on his/her own.
+            The practice mode has a variety of difficulty options, and varies from the main game only
+            in that the second player paddle is controlled by the program rather than the arrow keys.
+            The cpu paddle automatically moves to the ball location plus or minus an offset (with the
+            exception of a cosmetic move back to the center when a score is made).
+            
+            The initial plan for the program layout was three files:
+            - a game.cpp which had the general structure for an opengl game
+            - a pong.cpp which had all pong-specific control and display elements
+            - and a structs.cpp which held functions for interaction between the pong game objects
+
+            Unfortunately, as our work progressed, we realized that the pong elements were very difficult to
+            separate from the game elements.  In the end we settled with the following file structure:
+            - a pong.cpp which holds all main control functions, loops, and callbacks (specifically
+                all functions which require access to specific global variables)
+            - a pongGraphics.cpp which holds the functions to display elements in the pong game and several
+                utility functions to aid in drawing shapes and text
+            - and a structs.cpp which holds the collision physics for the game
+
+            Future versions of PONG will have more sophisticated methods of screen control than an enum and a 
+            switch statement (which can be seen in the display and step functions).  In addition, one goal for
+            the future will be to reduce the number of global variables in favor of some forms of top-level control
+            object.
  *
  * Issues and Bugs - 
-            No bugs to speak of.
+            No bugs to speak of.  The ability to slow the ball by moving backwards when it hits the paddle is
+            intentional and adds a feeling of realism.
  *
  ******************************************************************************/
 #include "pongGraphics.h"
@@ -512,6 +589,7 @@ void gameSetup()
     game_ball.position.second = 0;
     game_ball.diameter = 16;
     game_ball.velocity_vector.first = 15 * turn;
+    game_ball.velocity_vector.second = 0;
     turn *= -1;  // change serving turn
     assignColor(game_ball.color, White);
     
